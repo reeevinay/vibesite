@@ -1,26 +1,93 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --forest-obsidian: #0B0E0B;
+  --warm-parchment: #F2EFE9;
+  --weathered-lichen: #A3A89E;
+  --terracotta: #C87D55;
+  --sage-canopy: #5E7161;
+  --dried-moss: #3A473C;
+
+  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-sans: var(--font-jakarta), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-forest: #0B0E0B;
+  --color-parchment: #F2EFE9;
+  --color-lichen: #A3A89E;
+  --color-terracotta: #C87D55;
+  --color-sage: #5E7161;
+  --color-moss: #3A473C;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Cursor: Custom magnetic cursor only on fine pointers (desktop) ── */
+@media (pointer: fine) {
+  * {
+    cursor: none !important;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--forest-obsidian);
+  color: var(--warm-parchment);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Editorial Typography - bolder & crisper ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+/* ── Hairline Utility ──────────────────────────── */
+.hairline {
+  border-color: rgba(242, 239, 233, 0.14);
+}
+
+.hairline-dark {
+  border-color: rgba(11, 14, 11, 0.16);
+}
+
+/* ── Selection ─────────────────────────────────── */
+::selection {
+  background: rgba(200, 125, 85, 0.35);
+  color: var(--warm-parchment);
+}
+
+/* ── Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(242, 239, 233, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 125, 85, 0.4);
+}
+
+/* ── Smooth scroll ─────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Mobile responsiveness adjustments ────────── */
+@media (max-width: 640px) {
+  body {
+    font-size: 15px;
+  }
 }
