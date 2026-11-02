@@ -102,6 +102,7 @@ export const terrainFragmentShader = /* glsl */ `
   precision highp float;
 
   uniform float uTime;
+  uniform float uSunMode;
 
   varying float vHeight;
   varying vec3 vWorldPosition;
@@ -152,6 +153,10 @@ export const terrainFragmentShader = /* glsl */ `
     } else {
       color = mix(darkMoss, driedMoss, (normalizedHeight - 0.4) / 0.6);
     }
+
+    // Bright sunlit earth enhancement in Sun Mode
+    vec3 sunTerrain = mix(vec3(0.32, 0.42, 0.30), vec3(0.55, 0.58, 0.46), normalizedHeight);
+    color = mix(color, sunTerrain, uSunMode * 0.7);
 
     // Noise-based texture variation for organic look
     float texNoise = fbm(vWorldPosition.xz * 1.5);

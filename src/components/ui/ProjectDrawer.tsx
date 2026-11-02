@@ -57,7 +57,7 @@ const projectOptions: ProjectOption[] = [
     title: 'Custom Web Application & Portals',
     timeline: '3–5 weeks',
     desc: 'Tailored client portals, interactive booking engines, dashboards, and automated workflows.',
-    example: 'E.g. BNB Boutique Booking System',
+    example: 'E.g. Blush and Bangs Booking System',
     inr: 80000,
     usd: 960,
   },

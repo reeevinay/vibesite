@@ -78,6 +78,8 @@ export const grassVertexShader = /* glsl */ `
 export const grassFragmentShader = /* glsl */ `
   precision highp float;
 
+  uniform float uSunMode;
+
   varying vec2 vUv;
   varying float vHeight;
   varying vec3 vNormal;
@@ -124,6 +126,11 @@ export const grassFragmentShader = /* glsl */ `
     } else {
       color = mix(midColor, tipColor, (vHeight - 0.3) / 0.7);
     }
+
+    // --- Vibrant Sun Mode Brightness Boost ---
+    // When Sun Mode is active, brighten grass with lush sun-drenched green & golden warm straw tips
+    vec3 sunGrass = mix(vec3(0.25, 0.44, 0.22), vec3(0.88, 0.72, 0.42), vHeight);
+    color = mix(color, sunGrass, uSunMode * 0.75);
 
     // Add per-blade color variation
     float bladeVariation = noise2D(vWorldPosition.xz * 2.5) * 0.08 - 0.04;

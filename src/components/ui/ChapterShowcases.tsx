@@ -363,7 +363,7 @@ export default function ChapterShowcases({
         {type === 'sky' && (
           <div className="space-y-6">
             <p className="text-[15px] sm:text-[16px] leading-[1.65] text-[#A3A89E] font-sans">
-              From bespoke booking portals like <strong className="text-[#F2EFE9]">BNB Boutique Stays</strong> (<a href="https://bnb-6spd.vercel.app/" target="_blank" rel="noreferrer" className="text-[#C87D55] underline">bnb-6spd.vercel.app ↗</a>) to production media hubs like <strong className="text-[#F2EFE9]">GrowMore Production</strong> (<a href="https://growmoreproduction.vercel.app/" target="_blank" rel="noreferrer" className="text-[#C87D55] underline">growmoreproduction.vercel.app ↗</a>), we run high-availability systems with personal founder stewardship:
+              From bespoke booking portals like <strong className="text-[#F2EFE9]">Blush and Bangs</strong> (<a href="https://bnb-6spd.vercel.app/" target="_blank" rel="noreferrer" className="text-[#C87D55] underline">bnb-6spd.vercel.app ↗</a>) to production media hubs like <strong className="text-[#F2EFE9]">GrowMore Production</strong> (<a href="https://growmoreproduction.vercel.app/" target="_blank" rel="noreferrer" className="text-[#C87D55] underline">growmoreproduction.vercel.app ↗</a>), we run high-availability systems with personal founder stewardship:
             </p>
 
             {/* Live Uptime & Telemetry Grid */}

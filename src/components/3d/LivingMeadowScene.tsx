@@ -50,7 +50,7 @@ function terrainHeight(x: number, z: number): number {
 const GRASS_COUNT = 12000
 const GRASS_AREA = 30
 
-function GrassField() {
+function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) {
   const meshRef = useRef<THREE.InstancedMesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0))
@@ -104,6 +104,7 @@ function GrassField() {
       uTime: { value: 0 },
       uWindStrength: { value: 0.4 },
       uMouseWorld: { value: new THREE.Vector3(0, 0, 0) },
+      uSunMode: { value: season === 'Sun' ? 1.0 : 0.0 },
     }),
     []
   )
@@ -130,6 +131,12 @@ function GrassField() {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
       matRef.current.uniforms.uMouseWorld.value.lerp(mouseWorld.current, 0.1)
+      const targetSun = season === 'Sun' ? 1.0 : 0.0
+      matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
+        matRef.current.uniforms.uSunMode.value,
+        targetSun,
+        0.08
+      )
     }
   })
 
@@ -175,12 +182,13 @@ function GrassField() {
 // Terrain
 // ---------------------------------------------------------------------------
 
-function Terrain() {
+function Terrain({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) {
   const matRef = useRef<THREE.ShaderMaterial>(null)
 
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
+      uSunMode: { value: season === 'Sun' ? 1.0 : 0.0 },
     }),
     []
   )
@@ -188,6 +196,12 @@ function Terrain() {
   useFrame(({ clock }) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
+      const targetSun = season === 'Sun' ? 1.0 : 0.0
+      matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
+        matRef.current.uniforms.uSunMode.value,
+        targetSun,
+        0.08
+      )
     }
   })
 
@@ -791,9 +805,9 @@ function AtmosphereManager({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
         }
       case 'Sun':
         return {
-          bgColor: new THREE.Color(0x22150e), // Warm Sunlit Terracotta Clay
-          fogColor: new THREE.Color(0x22150e),
-          fogDensity: 0.032,
+          bgColor: new THREE.Color(0xf6f1e8), // Luminous, bright sunlit warm ivory parchment
+          fogColor: new THREE.Color(0xf6f1e8),
+          fogDensity: 0.015,
         }
       case 'Dawn':
       default:
@@ -848,10 +862,10 @@ function DynamicLighting({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
         }
       case 'Sun':
         return {
-          ambColor: new THREE.Color(0xe6c9b8),
-          ambIntensity: 0.38,
-          dirColor: new THREE.Color(0xffaa77),
-          dirIntensity: 0.85,
+          ambColor: new THREE.Color(0xfff8ee), // Brilliant bright clean sunlight
+          ambIntensity: 1.25,
+          dirColor: new THREE.Color(0xffe2b8),
+          dirIntensity: 1.65,
         }
       case 'Dawn':
       default:
@@ -937,8 +951,8 @@ export default function LivingMeadowScene({
 
       {/* Scene components */}
       <CameraRig currentChapter={currentChapter} />
-      <Terrain />
-      <GrassField />
+      <Terrain season={season} />
+      <GrassField season={season} />
       <WaterPlane onWaterClick={onWaterClick} onSpawnParticles={handleSpawnParticles} />
       <SporeParticles spawnQueue={spawnQueue} />
       <VolumetricLight currentChapter={currentChapter} season={season} />
