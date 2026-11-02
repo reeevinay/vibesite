@@ -19,6 +19,26 @@ export default function Optimized2DBackground({ season }: Optimized2DBackgroundP
           <div className="absolute top-[5%] left-[20%] w-[55vw] h-[55vw] rounded-full bg-[radial-gradient(circle,rgba(65,95,145,0.3)_0%,rgba(4,7,20,0)_70%)] blur-3xl" />
           <div className="absolute bottom-[15%] right-[5%] w-[45vw] h-[45vw] rounded-full bg-[radial-gradient(circle,rgba(40,60,90,0.35)_0%,rgba(4,7,20,0)_70%)] blur-3xl" />
           <div className="absolute inset-0 bg-[radial-gradient(#B8D5FF_1px,transparent_1px)] [background-size:48px_48px] opacity-[0.25]" />
+
+          {/* Subtle Celestial Companion Constellation (Polar Bear & Panda hint in the night sky) */}
+          <div className="absolute top-[18%] right-[14%] opacity-[0.14] pointer-events-none hidden md:block">
+            <svg width="90" height="60" viewBox="0 0 90 60" fill="none" stroke="#B8D5FF" strokeWidth="0.6">
+              <circle cx="20" cy="30" r="1.2" fill="#B8D5FF" />
+              <circle cx="32" cy="18" r="1.2" fill="#B8D5FF" />
+              <circle cx="42" cy="24" r="1.2" fill="#B8D5FF" />
+              <circle cx="48" cy="38" r="1.2" fill="#C87D55" />
+              <circle cx="60" cy="22" r="1.2" fill="#B8D5FF" />
+              <circle cx="72" cy="28" r="1.2" fill="#B8D5FF" />
+              <circle cx="68" cy="42" r="1.2" fill="#B8D5FF" />
+              {/* Connecting celestial lines */}
+              <line x1="20" y1="30" x2="32" y2="18" strokeDasharray="2 3" />
+              <line x1="32" y1="18" x2="42" y2="24" strokeDasharray="2 3" />
+              <line x1="42" y1="24" x2="48" y2="38" strokeDasharray="2 3" />
+              <line x1="48" y1="38" x2="60" y2="22" strokeDasharray="2 3" />
+              <line x1="60" y1="22" x2="72" y2="28" strokeDasharray="2 3" />
+              <line x1="72" y1="28" x2="68" y2="42" strokeDasharray="2 3" />
+            </svg>
+          </div>
         </>
       )}
 

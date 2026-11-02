@@ -10,6 +10,7 @@ import CustomCursor from '@/components/ui/CustomCursor'
 import ChapterShowcases from '@/components/ui/ChapterShowcases'
 import QuickConnectDock from '@/components/ui/QuickConnectDock'
 import Optimized2DBackground from '@/components/ui/Optimized2DBackground'
+import BearEasterEgg from '@/components/ui/BearEasterEgg'
 
 const LivingMeadowScene = dynamic(
   () => import('@/components/3d/LivingMeadowScene'),
@@ -497,9 +498,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Bottom Copyright */}
+            {/* Bottom Copyright & Easter Egg */}
             <div className="pt-8 border-t border-[rgba(242,239,233,0.08)] flex flex-col sm:flex-row items-center justify-between text-[12px] font-sans text-[#A3A89E]/70 gap-4">
-              <span>© 2026 vibesite studio. All rights reserved.</span>
+              <div className="flex items-center gap-2">
+                <span>© 2026 vibesite studio. All rights reserved.</span>
+                <span className="text-[10px] text-[#A3A89E]/30 hidden xs:inline">•</span>
+                <BearEasterEgg />
+              </div>
               <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                 <span>Direct Founder Line: +91 80771 71541</span>
                 <span>{is3DEnabled ? 'GLSL Instanced Meadow (3D)' : 'Eco 2D Background'}</span>
