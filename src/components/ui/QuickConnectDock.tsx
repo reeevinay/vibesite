@@ -28,7 +28,7 @@ export default function QuickConnectDock({ onOpenDrawer, season = 'Dawn' }: Quic
           onClick={() => setMinimized(false)}
           className={`flex items-center gap-2.5 px-4 py-3 border shadow-2xl backdrop-blur-md transition-all group ${
             isSunMode
-              ? 'bg-[#FAF7F2]/95 text-[#0B0E0B] border-[#C87D55] hover:border-[#b5653b]'
+              ? 'bg-[#FDFBF7]/95 text-[#1A1A1A] border-[#C87D55] hover:border-[#b5653b] shadow-[0_8px_30px_rgba(26,26,26,0.08)]'
               : 'bg-[#0B0E0B]/95 text-[#F2EFE9] border-[#C87D55]/60 hover:border-[#C87D55]'
           }`}
           title="Open quick contact dock"
@@ -45,14 +45,14 @@ export default function QuickConnectDock({ onOpenDrawer, season = 'Dawn' }: Quic
         <div
           className={`backdrop-blur-md border shadow-2xl p-3.5 sm:p-4 max-w-[340px] transition-all duration-300 ${
             isSunMode
-              ? 'bg-[#FAF7F2]/95 border-[#0B0E0B]/18 text-[#0B0E0B]'
+              ? 'bg-[#FDFBF7]/95 border-[rgba(26,26,26,0.12)] text-[#1A1A1A] shadow-[0_12px_36px_rgba(26,26,26,0.1)]'
               : 'bg-[#0B0E0B]/95 border-[rgba(242,239,233,0.18)] text-[#F2EFE9]'
           }`}
         >
           {/* Header Bar */}
           <div
             className={`flex items-center justify-between pb-2.5 mb-2.5 border-b ${
-              isSunMode ? 'border-[#0B0E0B]/12' : 'border-[rgba(242,239,233,0.12)]'
+              isSunMode ? 'border-[rgba(26,26,26,0.09)]' : 'border-[rgba(242,239,233,0.12)]'
             }`}
           >
             <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export default function QuickConnectDock({ onOpenDrawer, season = 'Dawn' }: Quic
               type="button"
               onClick={() => setMinimized(true)}
               className={`text-[11px] p-1 transition-colors ${
-                isSunMode ? 'text-[#0B0E0B]/60 hover:text-[#0B0E0B]' : 'text-[#A3A89E] hover:text-[#F2EFE9]'
+                isSunMode ? 'text-[#4A4D4A] hover:text-[#1A1A1A]' : 'text-[#A3A89E] hover:text-[#F2EFE9]'
               }`}
               title="Minimize dock"
             >
@@ -79,7 +79,7 @@ export default function QuickConnectDock({ onOpenDrawer, season = 'Dawn' }: Quic
           {/* Quick Explanation */}
           <p
             className={`text-[12px] font-sans mb-3 leading-snug ${
-              isSunMode ? 'text-[#0B0E0B]/80 font-medium' : 'text-[#A3A89E]'
+              isSunMode ? 'text-[#4A4D4A] font-medium' : 'text-[#A3A89E]'
             }`}
           >
             Zero bureaucracy. Talk directly with the studio founders:

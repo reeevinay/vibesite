@@ -70,7 +70,7 @@ export default function Header({
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? isSunMode
-            ? 'bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[rgba(11,14,11,0.12)] shadow-sm py-3'
+            ? 'bg-[#FDFBF7]/95 backdrop-blur-md border-b border-[rgba(26,26,26,0.08)] shadow-[0_4px_20px_rgba(26,26,26,0.05)] py-3'
             : 'bg-[#0B0E0B]/92 backdrop-blur-md border-b border-[rgba(242,239,233,0.12)] py-3'
           : 'bg-transparent border-b border-transparent py-4 sm:py-6'
       }`}
@@ -84,7 +84,7 @@ export default function Header({
           >
             <span
               className={`text-[23px] sm:text-[27px] tracking-[-0.03em] font-semibold transition-colors duration-300 ${
-                isSunMode ? 'text-[#0B0E0B]' : 'text-[#F2EFE9]'
+                isSunMode ? 'text-[#1A1A1A]' : 'text-[#F2EFE9]'
               }`}
               style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
             >
@@ -105,8 +105,8 @@ export default function Header({
             className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-sans font-medium border transition-all ${
               isSunMode
                 ? is3DEnabled
-                  ? 'border-[#0B0E0B]/25 bg-white/70 text-[#0B0E0B] hover:border-[#0B0E0B]/50'
-                  : 'border-[#C85D25] bg-[#C85D25]/10 text-[#C85D25]'
+                  ? 'border-[rgba(26,26,26,0.18)] bg-white/80 text-[#1A1A1A] hover:border-[rgba(26,26,26,0.4)] shadow-[0_2px_8px_rgba(26,26,26,0.04)]'
+                  : 'border-[#D49A3D] bg-[#D49A3D]/10 text-[#A66D1B]'
                 : is3DEnabled
                 ? 'border-[#5E7161] bg-[#5E7161]/15 text-[#F2EFE9] hover:border-[#5E7161]/80'
                 : 'border-[#C87D55] bg-[#C87D55]/15 text-[#F2EFE9]'
@@ -119,7 +119,7 @@ export default function Header({
           >
             <span
               className={`w-2 h-2 rounded-full ${
-                is3DEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                is3DEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
               }`}
             />
             <span className="font-bold tracking-[0.06em]">
@@ -131,7 +131,7 @@ export default function Header({
           <div
             className={`flex items-center gap-1 border p-0.5 transition-colors duration-300 ${
               isSunMode
-                ? 'border-[rgba(11,14,11,0.18)] bg-white/60'
+                ? 'border-[rgba(26,26,26,0.14)] bg-white/70 shadow-[0_2px_8px_rgba(26,26,26,0.03)]'
                 : 'border-[rgba(242,239,233,0.16)] bg-[#0B0E0B]/60'
             }`}
           >
@@ -141,7 +141,7 @@ export default function Header({
               onClick={handleCycleSeason}
               className={`p-1 transition-colors focus:outline-none flex-shrink-0 ${
                 isSunMode
-                  ? 'text-[#0B0E0B]/70 hover:text-[#C87D55]'
+                  ? 'text-[#4A4D4A] hover:text-[#D49A3D]'
                   : 'text-[#A3A89E] hover:text-[#C87D55]'
               }`}
               title="Click to cycle light: Dawn / Sun (Light Mode) / Night"
@@ -182,7 +182,7 @@ export default function Header({
                   season === s
                     ? 'bg-[#C87D55] text-[#F2EFE9] font-bold shadow-sm'
                     : isSunMode
-                    ? 'text-[#0B0E0B]/70 hover:text-[#0B0E0B]'
+                    ? 'text-[#4A4D4A] hover:text-[#1A1A1A]'
                     : 'text-[#A3A89E] hover:text-[#F2EFE9]'
                 }`}
                 title={`Switch to ${seasonLabels[s]}`}
@@ -198,7 +198,7 @@ export default function Header({
             onClick={handleToggleSound}
             className={`group hidden sm:flex items-center gap-1.5 text-[11px] font-sans tracking-[0.08em] transition-colors focus:outline-none p-1 ${
               isSunMode
-                ? 'text-[#0B0E0B]/70 hover:text-[#0B0E0B]'
+                ? 'text-[#4A4D4A] hover:text-[#1A1A1A]'
                 : 'text-[#A3A89E] hover:text-[#F2EFE9]'
             }`}
             title={isAudioActive ? 'Mute ambient wind' : 'Listen to ambient wind'}

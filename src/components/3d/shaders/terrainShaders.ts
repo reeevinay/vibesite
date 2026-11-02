@@ -154,9 +154,9 @@ export const terrainFragmentShader = /* glsl */ `
       color = mix(darkMoss, driedMoss, (normalizedHeight - 0.4) / 0.6);
     }
 
-    // Bright sunlit earth enhancement in Sun Mode
-    vec3 sunTerrain = mix(vec3(0.32, 0.42, 0.30), vec3(0.55, 0.58, 0.46), normalizedHeight);
-    color = mix(color, sunTerrain, uSunMode * 0.7);
+    // Warm natural sunlit earth enhancement in Sun Mode
+    vec3 sunTerrain = mix(vec3(0.28, 0.36, 0.26), vec3(0.52, 0.50, 0.38), normalizedHeight);
+    color = mix(color, sunTerrain, uSunMode * 0.65);
 
     // Noise-based texture variation for organic look
     float texNoise = fbm(vWorldPosition.xz * 1.5);
@@ -169,7 +169,7 @@ export const terrainFragmentShader = /* glsl */ `
     // Subtle directional lighting based on displaced normal
     vec3 lightDir = normalize(vec3(0.3, 1.0, 0.2));
     float diffuse = max(dot(vNormal, lightDir), 0.0);
-    float ambient = 0.4;
+    float ambient = mix(0.4, 0.55, uSunMode);
     float lighting = ambient + (1.0 - ambient) * diffuse;
     color *= lighting;
 
@@ -177,13 +177,15 @@ export const terrainFragmentShader = /* glsl */ `
     float slope = 1.0 - vNormal.y; // 0 = flat, 1 = vertical
     color = mix(color, obsidian * 1.2, slope * 0.3);
 
-    // --- Distance fog ---
+    // --- Distance fog (blends smoothly to warm cream #FBF9F1 in Sun Mode) ---
     float distFromCamera = length(vWorldPosition - cameraPosition);
     float fogStart = 30.0;
     float fogEnd = 80.0;
     float fogFactor = smoothstep(fogStart, fogEnd, distFromCamera);
-    vec3 fogColor = vec3(0.035, 0.045, 0.04); // very dark atmospheric fog
-    color = mix(color, fogColor, fogFactor * 0.6);
+    vec3 darkFog = vec3(0.035, 0.045, 0.04);
+    vec3 warmCreamFog = vec3(0.984, 0.976, 0.945); // #FBF9F1
+    vec3 fogColor = mix(darkFog, warmCreamFog, uSunMode);
+    color = mix(color, fogColor, fogFactor * 0.65);
 
     gl_FragColor = vec4(color, 1.0);
   }

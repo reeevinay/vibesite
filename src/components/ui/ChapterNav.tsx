@@ -26,16 +26,16 @@ export default function ChapterNav({
       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 select-none pointer-events-auto"
     >
       <div
-        className={`flex items-center gap-1 sm:gap-2 backdrop-blur-md px-3 sm:px-4 py-2 border shadow-2xl transition-colors duration-300 ${
+        className={`flex items-center gap-1 sm:gap-2 backdrop-blur-md px-3 sm:px-4 py-2 border transition-colors duration-300 ${
           isSunMode
-            ? 'bg-[#FAF7F2]/95 border-[#0B0E0B]/18 text-[#0B0E0B]'
-            : 'bg-[#0B0E0B]/90 border-[rgba(242,239,233,0.16)] text-[#F2EFE9]'
+            ? 'bg-[#FDFBF7]/95 border-[rgba(26,26,26,0.12)] text-[#1A1A1A] shadow-[0_8px_30px_rgba(26,26,26,0.08)]'
+            : 'bg-[#0B0E0B]/90 border-[rgba(242,239,233,0.16)] text-[#F2EFE9] shadow-2xl'
         }`}
       >
         <span
           className={`hidden md:inline-block text-[10px] font-sans uppercase tracking-[0.2em] font-bold mr-2 border-r pr-3 ${
             isSunMode
-              ? 'text-[#5E7161] border-[#0B0E0B]/15'
+              ? 'text-[#5E7161] border-[rgba(26,26,26,0.12)]'
               : 'text-[#5E7161] border-[rgba(242,239,233,0.14)]'
           }`}
         >
@@ -54,7 +54,7 @@ export default function ChapterNav({
                 isActive
                   ? 'bg-[#C87D55] text-[#F2EFE9] font-bold shadow-sm'
                   : isSunMode
-                  ? 'text-[#0B0E0B]/70 hover:text-[#0B0E0B] hover:bg-black/5'
+                  ? 'text-[#4A4D4A] hover:text-[#1A1A1A] hover:bg-black/5'
                   : 'text-[#A3A89E] hover:text-[#F2EFE9] hover:bg-white/5'
               }`}
               title={`${ch.numeral}. ${ch.title} — ${ch.label}`}

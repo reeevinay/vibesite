@@ -54,18 +54,17 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
   const meshRef = useRef<THREE.InstancedMesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0))
-  const groundPlaneRef = useRef<THREE.Mesh>(null)
-  const raycaster = useRef(new THREE.Raycaster())
-  const pointerNdc = useRef(new THREE.Vector2(0, 0))
+  const groundMesh1 = useRef<THREE.Mesh>(null)
+  const groundMesh2 = useRef<THREE.Mesh>(null)
 
   const { bladeGeo, offsets, scales, phases } = useMemo(() => {
     const geo = new THREE.PlaneGeometry(0.05, 1.0, 1, 5)
     const posAttr = geo.attributes.position as THREE.BufferAttribute
     const posArray = posAttr.array as Float32Array
 
-    // Taper top vertices – the blade is in XY plane, Y going up 0→1
+    // Taper top vertices – blade is in XY plane, Y going up 0->1
     for (let i = 0; i < posArray.length; i += 3) {
-      const yNorm = (posArray[i + 1] + 0.5) // 0 at bottom, 1 at top
+      const yNorm = posArray[i + 1] + 0.5
       const taper = 1.0 - yNorm * 0.9
       posArray[i] *= taper
     }
@@ -73,6 +72,9 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
 
     // Shift pivot to base (bottom of blade)
     geo.translate(0, 0.5, 0)
+
+    // Set bounding sphere so frustum culling works safely on instanced meadow
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), GRASS_AREA * 0.85)
 
     const oArr = new Float32Array(GRASS_COUNT * 3)
     const sArr = new Float32Array(GRASS_COUNT)
@@ -87,7 +89,7 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
       oArr[i * 3 + 1] = y
       oArr[i * 3 + 2] = z
 
-      sArr[i] = 0.5 + Math.random() * 1.0 // 0.5-1.5
+      sArr[i] = 0.5 + Math.random() * 1.0
       pArr[i] = Math.random() * Math.PI * 2.0
     }
 
@@ -109,14 +111,25 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
     []
   )
 
-  // Attach instanced attributes once
+  // Attach instanced attributes and freeze static mouse hit planes
   useEffect(() => {
     if (!meshRef.current) return
     const geo = meshRef.current.geometry
     geo.setAttribute('aOffset', new THREE.InstancedBufferAttribute(offsets, 3))
     geo.setAttribute('aScale', new THREE.InstancedBufferAttribute(scales, 1))
     geo.setAttribute('aPhase', new THREE.InstancedBufferAttribute(phases, 1))
+
+    groundMesh1.current?.updateMatrix()
+    groundMesh2.current?.updateMatrix()
   }, [offsets, scales, phases])
+
+  // Explicit disposal on unmount to prevent GPU memory leaks
+  useEffect(() => {
+    return () => {
+      bladeGeo.dispose()
+      matRef.current?.dispose()
+    }
+  }, [bladeGeo])
 
   const handlePointerMove = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
@@ -127,44 +140,53 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
     []
   )
 
-  useFrame(({ clock }) => {
+  // Frame-rate independent animation driven by Delta time
+  useFrame(({ clock }, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
-      matRef.current.uniforms.uMouseWorld.value.lerp(mouseWorld.current, 0.1)
+
+      // Exponential decay lerp for mouse world coordinates
+      const mouseLerp = 1.0 - Math.exp(-12 * delta)
+      matRef.current.uniforms.uMouseWorld.value.lerp(mouseWorld.current, mouseLerp)
+
+      // Exponential decay lerp for Sun Mode transition
       const targetSun = season === 'Sun' ? 1.0 : 0.0
+      const sunLerp = 1.0 - Math.exp(-5 * delta)
       matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
         matRef.current.uniforms.uSunMode.value,
         targetSun,
-        0.08
+        sunLerp
       )
     }
   })
 
   return (
     <>
-      {/* Hidden ground plane for mouse tracking */}
+      {/* Static ground planes for mouse tracking with matrixAutoUpdate disabled */}
       <mesh
-        ref={groundPlaneRef}
+        ref={groundMesh1}
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
         visible={false}
+        matrixAutoUpdate={false}
         onPointerMove={handlePointerMove}
       >
         <planeGeometry args={[60, 60]} />
         <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* Visible ground plane for raycasting (invisible) */}
       <mesh
+        ref={groundMesh2}
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
+        matrixAutoUpdate={false}
         onPointerMove={handlePointerMove}
       >
         <planeGeometry args={[60, 60]} />
         <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} depthWrite={false} />
       </mesh>
 
-      <instancedMesh ref={meshRef} args={[bladeGeo, undefined, GRASS_COUNT]} frustumCulled={false}>
+      <instancedMesh ref={meshRef} args={[bladeGeo, undefined, GRASS_COUNT]} frustumCulled={true}>
         <shaderMaterial
           ref={matRef}
           vertexShader={grassVertexShader}
@@ -182,8 +204,16 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
 // Terrain
 // ---------------------------------------------------------------------------
 
-function Terrain({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) {
+function Terrain({
+  season = 'Dawn',
+  isMobile = false,
+}: {
+  season?: 'Dawn' | 'Sun' | 'Night'
+  isMobile?: boolean
+}) {
+  const meshRef = useRef<THREE.Mesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
+  const geoRef = useRef<THREE.PlaneGeometry>(null)
 
   const uniforms = useMemo(
     () => ({
@@ -193,21 +223,40 @@ function Terrain({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) {
     []
   )
 
-  useFrame(({ clock }) => {
+  // Freeze static matrix calculation on mount
+  useEffect(() => {
+    meshRef.current?.updateMatrix()
+  }, [])
+
+  // Explicit disposal on unmount
+  useEffect(() => {
+    return () => {
+      geoRef.current?.dispose()
+      matRef.current?.dispose()
+    }
+  }, [])
+
+  useFrame(({ clock }, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
       const targetSun = season === 'Sun' ? 1.0 : 0.0
+      const sunLerp = 1.0 - Math.exp(-5 * delta)
       matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
         matRef.current.uniforms.uSunMode.value,
         targetSun,
-        0.08
+        sunLerp
       )
     }
   })
 
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <planeGeometry args={[60, 60, 128, 128]} />
+    <mesh
+      ref={meshRef}
+      rotation={[-Math.PI / 2, 0, 0]}
+      receiveShadow={!isMobile}
+      matrixAutoUpdate={false}
+    >
+      <planeGeometry ref={geoRef} args={[60, 60, 128, 128]} />
       <shaderMaterial
         ref={matRef}
         vertexShader={terrainVertexShader}
@@ -231,7 +280,9 @@ interface WaterPlaneProps {
 const MAX_RIPPLES = 5
 
 function WaterPlane({ onWaterClick, onSpawnParticles }: WaterPlaneProps) {
+  const meshRef = useRef<THREE.Mesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
+  const geoRef = useRef<THREE.CircleGeometry>(null)
   const rippleIndex = useRef(0)
 
   const uniforms = useMemo(() => {
@@ -242,6 +293,14 @@ function WaterPlane({ onWaterClick, onSpawnParticles }: WaterPlaneProps) {
       uRippleOrigins: { value: origins },
       uRippleTimes: { value: times },
       uRippleCount: { value: MAX_RIPPLES },
+    }
+  }, [])
+
+  useEffect(() => {
+    meshRef.current?.updateMatrix()
+    return () => {
+      geoRef.current?.dispose()
+      matRef.current?.dispose()
     }
   }, [])
 
@@ -275,8 +334,14 @@ function WaterPlane({ onWaterClick, onSpawnParticles }: WaterPlaneProps) {
   })
 
   return (
-    <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={handleClick}>
-      <circleGeometry args={[4, 64]} />
+    <mesh
+      ref={meshRef}
+      position={[0, 0.05, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+      matrixAutoUpdate={false}
+      onClick={handleClick}
+    >
+      <circleGeometry ref={geoRef} args={[4, 64]} />
       <shaderMaterial
         ref={matRef}
         vertexShader={waterVertexShader}
@@ -300,6 +365,7 @@ const SPORE_COLOR = new THREE.Color(0xc87d55)
 function SporeParticles({ spawnQueue }: { spawnQueue: THREE.Vector3[] }) {
   const pointsRef = useRef<THREE.Points>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
+  const geoRef = useRef<THREE.BufferGeometry>(null)
 
   const { positions, velocities, lifetimes, ages, startPositions } = useMemo(() => {
     const pos = new Float32Array(SPORE_COUNT * 3)
@@ -310,7 +376,7 @@ function SporeParticles({ spawnQueue }: { spawnQueue: THREE.Vector3[] }) {
 
     for (let i = 0; i < SPORE_COUNT; i++) {
       pos[i * 3 + 0] = 0
-      pos[i * 3 + 1] = -100 // offscreen
+      pos[i * 3 + 1] = -100
       pos[i * 3 + 2] = 0
 
       vel[i * 3 + 0] = 0
@@ -335,6 +401,16 @@ function SporeParticles({ spawnQueue }: { spawnQueue: THREE.Vector3[] }) {
     }),
     []
   )
+
+  useEffect(() => {
+    if (geoRef.current) {
+      geoRef.current.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 30)
+    }
+    return () => {
+      geoRef.current?.dispose()
+      matRef.current?.dispose()
+    }
+  }, [])
 
   const spawnBurst = useCallback(
     (origin: THREE.Vector3) => {
@@ -362,11 +438,9 @@ function SporeParticles({ spawnQueue }: { spawnQueue: THREE.Vector3[] }) {
     [positions, velocities, lifetimes, ages, startPositions]
   )
 
-  // Process spawn queue
   const lastQueueLen = useRef(0)
 
-  useFrame(({ clock }, delta) => {
-    // Check for new spawn requests
+  useFrame((_, delta) => {
     if (spawnQueue.length > lastQueueLen.current) {
       for (let i = lastQueueLen.current; i < spawnQueue.length; i++) {
         spawnBurst(spawnQueue[i])
@@ -374,14 +448,12 @@ function SporeParticles({ spawnQueue }: { spawnQueue: THREE.Vector3[] }) {
       lastQueueLen.current = spawnQueue.length
     }
 
-    // Update existing particles
     for (let i = 0; i < SPORE_COUNT; i++) {
       if (lifetimes[i] <= 0) continue
 
       ages[i] += delta
 
       if (ages[i] >= lifetimes[i]) {
-        // Kill particle
         lifetimes[i] = 0
         positions[i * 3 + 1] = -100
         continue
@@ -391,11 +463,8 @@ function SporeParticles({ spawnQueue }: { spawnQueue: THREE.Vector3[] }) {
       positions[i * 3 + 1] += velocities[i * 3 + 1] * delta
       positions[i * 3 + 2] += velocities[i * 3 + 2] * delta
 
-      // Gentle drift
       velocities[i * 3 + 0] += (Math.random() - 0.5) * 0.1 * delta
       velocities[i * 3 + 2] += (Math.random() - 0.5) * 0.1 * delta
-
-      // Slow down upward velocity
       velocities[i * 3 + 1] *= 1.0 - 0.5 * delta
     }
 
@@ -438,20 +507,11 @@ function SporeParticles({ spawnQueue }: { spawnQueue: THREE.Vector3[] }) {
   `
 
   return (
-    <points ref={pointsRef} frustumCulled={false}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
-        <bufferAttribute
-          attach="attributes-aAge"
-          args={[ages, 1]}
-        />
-        <bufferAttribute
-          attach="attributes-aLifetime"
-          args={[lifetimes, 1]}
-        />
+    <points ref={pointsRef} frustumCulled={true}>
+      <bufferGeometry ref={geoRef}>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-aAge" args={[ages, 1]} />
+        <bufferAttribute attach="attributes-aLifetime" args={[lifetimes, 1]} />
       </bufferGeometry>
       <shaderMaterial
         ref={matRef}
@@ -495,7 +555,7 @@ function CameraRig({ currentChapter }: CameraRigProps) {
         (e.clientY / window.innerHeight - 0.5) * 2.0
       )
     }
-    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
@@ -513,16 +573,17 @@ function CameraRig({ currentChapter }: CameraRigProps) {
     currentLookAt.current.y = THREE.MathUtils.lerp(currentLookAt.current.y, wp.lookAt.y, damping)
     currentLookAt.current.z = THREE.MathUtils.lerp(currentLookAt.current.z, wp.lookAt.z, damping)
 
-    // Mouse parallax
+    // Mouse parallax driven by delta time
+    const mouseLerp = 1.0 - Math.exp(-6 * delta)
     mouseOffset.current.x = THREE.MathUtils.lerp(
       mouseOffset.current.x,
       targetMouseOffset.current.x,
-      0.05
+      mouseLerp
     )
     mouseOffset.current.y = THREE.MathUtils.lerp(
       mouseOffset.current.y,
       targetMouseOffset.current.y,
-      0.05
+      mouseLerp
     )
 
     const parallaxX = mouseOffset.current.x * 0.3
@@ -544,10 +605,10 @@ function CameraRig({ currentChapter }: CameraRigProps) {
 // ---------------------------------------------------------------------------
 
 const CHAPTER_LIGHT_COLORS = [
-  new THREE.Color(0xc87d55), // Chapter 0: warm morning gold
-  new THREE.Color(0xb0634b), // Chapter 1: warm terracotta
-  new THREE.Color(0xa87230), // Chapter 2: earthy amber
-  new THREE.Color(0x2a2d4a), // Chapter 3: cool indigo-blue
+  new THREE.Color(0xc87d55),
+  new THREE.Color(0xb0634b),
+  new THREE.Color(0xa87230),
+  new THREE.Color(0x2a2d4a),
 ]
 
 function VolumetricLight({
@@ -559,66 +620,72 @@ function VolumetricLight({
 }) {
   const groupRef = useRef<THREE.Group>(null)
   const materialsRef = useRef<THREE.MeshBasicMaterial[]>([])
+  const geoRef = useRef<THREE.PlaneGeometry>(null)
 
   const rays = useMemo(() => {
-    const configs = [
+    return [
       { pos: [2, 6, -1] as const, rot: [0.3, 0.1, 0.2] as const, scale: [3, 12, 1] as const, opacity: 0.05 },
       { pos: [-3, 7, 1] as const, rot: [-0.2, -0.15, 0.3] as const, scale: [2.5, 14, 1] as const, opacity: 0.04 },
       { pos: [0, 5, -3] as const, rot: [0.15, 0.3, -0.1] as const, scale: [4, 10, 1] as const, opacity: 0.06 },
       { pos: [4, 8, 2] as const, rot: [-0.1, -0.2, 0.15] as const, scale: [2, 16, 1] as const, opacity: 0.07 },
     ]
-    return configs
   }, [])
 
-  useFrame(({ clock }) => {
+  useEffect(() => {
+    return () => {
+      geoRef.current?.dispose()
+      materialsRef.current.forEach((m) => m?.dispose())
+    }
+  }, [])
+
+  useFrame(({ clock }, delta) => {
     const t = clock.getElapsedTime()
     if (groupRef.current) {
       groupRef.current.children.forEach((child, i) => {
-        child.rotation.z += Math.sin(t * 0.1 + i * 1.5) * 0.0003
-        child.rotation.x += Math.cos(t * 0.08 + i * 2.0) * 0.0002
+        child.rotation.z += Math.sin(t * 0.1 + i * 1.5) * 0.018 * delta
+        child.rotation.x += Math.cos(t * 0.08 + i * 2.0) * 0.012 * delta
       })
     }
 
     let targetColor: THREE.Color
     if (season === 'Night') {
-      targetColor = new THREE.Color(0x4a72a8) // Moonlit indigo
+      targetColor = new THREE.Color(0x4a72a8)
     } else if (season === 'Sun') {
-      targetColor = new THREE.Color(0xf5a062) // Radiant terracotta
+      targetColor = new THREE.Color(0xdf9e38) // Subtle warm golden sun ray highlight
     } else {
       const chapter = Math.max(0, Math.min(3, currentChapter))
       targetColor = CHAPTER_LIGHT_COLORS[chapter]
     }
 
+    const colorLerp = 1.0 - Math.exp(-3.5 * delta)
     materialsRef.current.forEach((mat) => {
-      mat.color.lerp(targetColor, 0.04)
+      mat.color.lerp(targetColor, colorLerp)
     })
   })
 
   return (
     <group ref={groupRef}>
-      {rays.map((ray, i) => {
-        return (
-          <mesh
-            key={i}
-            position={[ray.pos[0], ray.pos[1], ray.pos[2]]}
-            rotation={[ray.rot[0], ray.rot[1], ray.rot[2]]}
-            scale={[ray.scale[0], ray.scale[1], ray.scale[2]]}
-          >
-            <planeGeometry args={[1, 1]} />
-            <meshBasicMaterial
-              ref={(el) => {
-                if (el) materialsRef.current[i] = el
-              }}
-              color={CHAPTER_LIGHT_COLORS[0]}
-              transparent
-              opacity={ray.opacity}
-              side={THREE.DoubleSide}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-        )
-      })}
+      {rays.map((ray, i) => (
+        <mesh
+          key={i}
+          position={[ray.pos[0], ray.pos[1], ray.pos[2]]}
+          rotation={[ray.rot[0], ray.rot[1], ray.rot[2]]}
+          scale={[ray.scale[0], ray.scale[1], ray.scale[2]]}
+        >
+          <planeGeometry ref={i === 0 ? geoRef : undefined} args={[1, 1]} />
+          <meshBasicMaterial
+            ref={(el) => {
+              if (el) materialsRef.current[i] = el
+            }}
+            color={CHAPTER_LIGHT_COLORS[0]}
+            transparent
+            opacity={ray.opacity}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
     </group>
   )
 }
@@ -629,6 +696,8 @@ function VolumetricLight({
 
 function MistPlanes() {
   const groupRef = useRef<THREE.Group>(null)
+  const geoRef = useRef<THREE.PlaneGeometry>(null)
+  const matRefs = useRef<THREE.MeshBasicMaterial[]>([])
 
   const mists = useMemo(() => {
     return [
@@ -640,13 +709,20 @@ function MistPlanes() {
     ]
   }, [])
 
-  useFrame(({ clock }) => {
+  useEffect(() => {
+    return () => {
+      geoRef.current?.dispose()
+      matRefs.current.forEach((m) => m?.dispose())
+    }
+  }, [])
+
+  useFrame(({ clock }, delta) => {
     const t = clock.getElapsedTime()
     if (groupRef.current) {
       groupRef.current.children.forEach((child, i) => {
         const mesh = child as THREE.Mesh
-        mesh.position.x += Math.sin(t * 0.03 + i * 1.7) * 0.002
-        mesh.position.y += Math.cos(t * 0.02 + i * 2.3) * 0.001
+        mesh.position.x += Math.sin(t * 0.03 + i * 1.7) * 0.12 * delta
+        mesh.position.y += Math.cos(t * 0.02 + i * 2.3) * 0.06 * delta
       })
     }
   })
@@ -659,8 +735,11 @@ function MistPlanes() {
           position={[mist.pos[0], mist.pos[1], mist.pos[2]]}
           scale={[mist.scale[0], mist.scale[1], mist.scale[2]]}
         >
-          <planeGeometry args={[1, 1]} />
+          <planeGeometry ref={i === 0 ? geoRef : undefined} args={[1, 1]} />
           <meshBasicMaterial
+            ref={(el) => {
+              if (el) matRefs.current[i] = el
+            }}
             color={0xf2efe9}
             transparent
             opacity={mist.opacity}
@@ -712,20 +791,36 @@ function CelestialNightSky({ active }: { active: boolean }) {
     return { fireflyPositions: pos }
   }, [])
 
-  useFrame(({ clock }) => {
+  useEffect(() => {
+    if (starsRef.current?.geometry) {
+      starsRef.current.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 45)
+    }
+    if (firefliesRef.current?.geometry) {
+      firefliesRef.current.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 30)
+    }
+    return () => {
+      starsRef.current?.geometry.dispose()
+      ;(starsRef.current?.material as THREE.Material)?.dispose()
+      firefliesRef.current?.geometry.dispose()
+      ;(firefliesRef.current?.material as THREE.Material)?.dispose()
+    }
+  }, [])
+
+  useFrame(({ clock }, delta) => {
     const t = clock.getElapsedTime()
+    const opLerp = 1.0 - Math.exp(-5 * delta)
 
     if (starsRef.current) {
       const mat = starsRef.current.material as THREE.PointsMaterial
       const targetOp = active ? 0.85 : 0.0
-      mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, 0.06)
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, opLerp)
       starsRef.current.visible = mat.opacity > 0.02
     }
 
     if (firefliesRef.current && firefliesRef.current.geometry) {
       const mat = firefliesRef.current.material as THREE.PointsMaterial
       const targetOp = active ? 0.9 : 0.0
-      mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, 0.06)
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, opLerp)
       firefliesRef.current.visible = mat.opacity > 0.02
 
       if (active) {
@@ -733,9 +828,9 @@ function CelestialNightSky({ active }: { active: boolean }) {
         const arr = posAttr.array as Float32Array
 
         for (let i = 0; i < arr.length; i += 3) {
-          arr[i + 0] += Math.sin(t * 0.4 + i) * 0.005
-          arr[i + 1] += Math.cos(t * 0.6 + i * 2) * 0.003
-          arr[i + 2] += Math.sin(t * 0.3 + i * 3) * 0.005
+          arr[i + 0] += Math.sin(t * 0.4 + i) * 0.3 * delta
+          arr[i + 1] += Math.cos(t * 0.6 + i * 2) * 0.18 * delta
+          arr[i + 2] += Math.sin(t * 0.3 + i * 3) * 0.3 * delta
 
           if (arr[i + 1] < 0.4) arr[i + 1] = 3.6
           if (arr[i + 1] > 4.2) arr[i + 1] = 0.5
@@ -747,13 +842,9 @@ function CelestialNightSky({ active }: { active: boolean }) {
 
   return (
     <group>
-      {/* Stars */}
-      <points ref={starsRef}>
+      <points ref={starsRef} frustumCulled={true}>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[starPositions, 3]}
-          />
+          <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
         </bufferGeometry>
         <pointsMaterial
           size={0.16}
@@ -765,13 +856,9 @@ function CelestialNightSky({ active }: { active: boolean }) {
         />
       </points>
 
-      {/* Floating Fireflies */}
-      <points ref={firefliesRef}>
+      <points ref={firefliesRef} frustumCulled={true}>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[fireflyPositions, 3]}
-          />
+          <bufferAttribute attach="attributes-position" args={[fireflyPositions, 3]} />
         </bufferGeometry>
         <pointsMaterial
           size={0.24}
@@ -799,20 +886,21 @@ function AtmosphereManager({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
     switch (season) {
       case 'Night':
         return {
-          bgColor: new THREE.Color(0x040714), // Deep Starlit Indigo
+          bgColor: new THREE.Color(0x040714),
           fogColor: new THREE.Color(0x040714),
           fogDensity: 0.038,
         }
       case 'Sun':
         return {
-          bgColor: new THREE.Color(0xf6f1e8), // Luminous, bright sunlit warm ivory parchment
-          fogColor: new THREE.Color(0xf6f1e8),
-          fogDensity: 0.015,
+          // Soft off-white / warm cream base (#FBF9F1)
+          bgColor: new THREE.Color(0xfbf9f1),
+          fogColor: new THREE.Color(0xfbf9f1),
+          fogDensity: 0.016,
         }
       case 'Dawn':
       default:
         return {
-          bgColor: new THREE.Color(0x0b0e0b), // Misty Obsidian Forest
+          bgColor: new THREE.Color(0x0b0e0b),
           fogColor: new THREE.Color(0x0b0e0b),
           fogDensity: 0.04,
         }
@@ -828,7 +916,6 @@ function AtmosphereManager({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
   useFrame((_, delta) => {
     const rate = Math.min(1.0, delta * 3.5)
 
-    // Lerp background color smoothly
     currentBg.current.lerp(targets.bgColor, rate)
     if (scene.background instanceof THREE.Color) {
       scene.background.copy(currentBg.current)
@@ -836,7 +923,6 @@ function AtmosphereManager({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
       scene.background = currentBg.current.clone()
     }
 
-    // Lerp fog color and density smoothly
     if (scene.fog && scene.fog instanceof THREE.FogExp2) {
       currentFog.current.lerp(targets.fogColor, rate)
       scene.fog.color.copy(currentFog.current)
@@ -847,7 +933,13 @@ function AtmosphereManager({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
   return null
 }
 
-function DynamicLighting({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
+function DynamicLighting({
+  season,
+  isMobile = false,
+}: {
+  season: 'Dawn' | 'Sun' | 'Night'
+  isMobile?: boolean
+}) {
   const ambRef = useRef<THREE.AmbientLight>(null)
   const dirRef = useRef<THREE.DirectionalLight>(null)
 
@@ -862,10 +954,11 @@ function DynamicLighting({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
         }
       case 'Sun':
         return {
-          ambColor: new THREE.Color(0xfff8ee), // Brilliant bright clean sunlight
-          ambIntensity: 1.25,
-          dirColor: new THREE.Color(0xffe2b8),
-          dirIntensity: 1.65,
+          // Natural warm sunlight aesthetic: soft off-white ambient & subtle golden sunlight
+          ambColor: new THREE.Color(0xfefcf5),
+          ambIntensity: 0.72,
+          dirColor: new THREE.Color(0xf6d69e),
+          dirIntensity: 0.95,
         }
       case 'Dawn':
       default:
@@ -898,7 +991,16 @@ function DynamicLighting({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
         intensity={0.5}
         color={0xc87d55}
         position={[5, 8, 3]}
-        castShadow
+        castShadow={!isMobile}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        shadow-camera-near={0.5}
+        shadow-camera-far={25}
+        shadow-camera-left={-12}
+        shadow-camera-right={12}
+        shadow-camera-top={12}
+        shadow-camera-bottom={-12}
+        shadow-bias={-0.0005}
       />
     </>
   )
@@ -920,6 +1022,17 @@ export default function LivingMeadowScene({
   onWaterClick,
 }: LivingMeadowSceneProps) {
   const [spawnQueue, setSpawnQueue] = useState<THREE.Vector3[]>([])
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Track viewport breakpoint for mobile shadow map and pixel ratio optimizations
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile, { passive: true })
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const handleSpawnParticles = useCallback((origin: THREE.Vector3) => {
     setSpawnQueue((prev) => [...prev, origin])
@@ -932,7 +1045,7 @@ export default function LivingMeadowScene({
         alpha: false,
         powerPreference: 'high-performance',
       }}
-      dpr={[1, 2]}
+      dpr={isMobile ? [1, 1.5] : [1, 2]}
       camera={{ fov: 45, near: 0.1, far: 100 }}
       style={{
         position: 'fixed',
@@ -942,16 +1055,22 @@ export default function LivingMeadowScene({
         height: '100vh',
       }}
       onCreated={({ gl, scene }) => {
-        gl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-        scene.background = new THREE.Color(0x0b0e0b)
+        // Adaptive pixel ratio: capped at 1.5 on mobile to eliminate thermal throttling, capped at 2 on desktop
+        const maxDpr = Math.min(
+          typeof window !== 'undefined' ? window.devicePixelRatio : 1,
+          window.innerWidth < 768 ? 1.5 : 2
+        )
+        gl.setPixelRatio(maxDpr)
+        const bgHex = season === 'Sun' ? 0xfbf9f1 : season === 'Night' ? 0x040714 : 0x0b0e0b
+        scene.background = new THREE.Color(bgHex)
       }}
     >
       <AtmosphereManager season={season} />
-      <DynamicLighting season={season} />
+      <DynamicLighting season={season} isMobile={isMobile} />
 
       {/* Scene components */}
       <CameraRig currentChapter={currentChapter} />
-      <Terrain season={season} />
+      <Terrain season={season} isMobile={isMobile} />
       <GrassField season={season} />
       <WaterPlane onWaterClick={onWaterClick} onSpawnParticles={handleSpawnParticles} />
       <SporeParticles spawnQueue={spawnQueue} />

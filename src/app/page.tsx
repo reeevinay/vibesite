@@ -215,17 +215,17 @@ export default function HomePage() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#5E7161] animate-pulse" />
               <span
                 className={`font-sans text-[11px] sm:text-[12px] uppercase tracking-[0.24em] font-bold ${
-                  isSunMode ? 'text-[#C85D25]' : 'text-[#C87D55]'
+                  isSunMode ? 'text-[#D49A3D]' : 'text-[#C87D55]'
                 }`}
               >
                 vibesite — Bespoke Web Studio
               </span>
-              <span className={`text-[12px] hidden sm:inline ${isSunMode ? 'text-[#0B0E0B]/30' : 'text-[#A3A89E]/40'}`}>
+              <span className={`text-[12px] hidden sm:inline ${isSunMode ? 'text-[#1A1A1A]/30' : 'text-[#A3A89E]/40'}`}>
                 •
               </span>
               <span
                 className={`font-sans text-[11px] sm:text-[12px] uppercase tracking-[0.16em] font-medium hidden sm:inline ${
-                  isSunMode ? 'text-[#0B0E0B]/75' : 'text-[#A3A89E]'
+                  isSunMode ? 'text-[#4A4D4A]' : 'text-[#A3A89E]'
                 }`}
               >
                 Zero AI Clichés / Pure Craft
@@ -234,7 +234,7 @@ export default function HomePage() {
 
             <h1
               className={`text-[clamp(2.8rem,7vw,5.4rem)] leading-[0.98] tracking-[-0.035em] font-medium transition-colors duration-500 ${
-                isSunMode ? 'text-[#0B0E0B]' : 'text-[#F2EFE9]'
+                isSunMode ? 'text-[#1A1A1A]' : 'text-[#F2EFE9]'
               }`}
               style={{ fontFamily: 'var(--font-serif)' }}
             >
@@ -251,7 +251,7 @@ export default function HomePage() {
 
             <p
               className={`text-[16px] sm:text-[19px] font-sans leading-[1.7] max-w-[620px] transition-colors duration-500 ${
-                isSunMode ? 'text-[#283229] font-medium' : 'text-[#A3A89E] font-normal'
+                isSunMode ? 'text-[#1A1A1A] font-normal' : 'text-[#A3A89E] font-normal'
               }`}
             >
               No generic templates. No bloated SaaS cards. Just high-craft editorial design, living 3D GLSL physics, and obsessive human attention to every conversion touchpoint.
@@ -259,17 +259,17 @@ export default function HomePage() {
 
             {/* Instant Onboarding Fast-Track (Easiest Way to Start) */}
             <div
-              className={`p-4 sm:p-5 shadow-2xl backdrop-blur-md max-w-[640px] border transition-colors duration-500 ${
+              className={`p-4 sm:p-5 backdrop-blur-md max-w-[640px] border transition-colors duration-500 ${
                 isSunMode
-                  ? 'bg-white/95 border-[#0B0E0B]/20 text-[#0B0E0B]'
-                  : 'bg-[#0B0E0B]/85 border-[#C87D55]/50 text-[#F2EFE9]'
+                  ? 'bg-[#FDFBF7]/95 border-[rgba(26,26,26,0.12)] text-[#1A1A1A] shadow-[0_12px_36px_rgba(26,26,26,0.06),0_2px_8px_rgba(26,26,26,0.03)]'
+                  : 'bg-[#0B0E0B]/85 border-[#C87D55]/50 text-[#F2EFE9] shadow-2xl'
               }`}
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span
                   className={`font-sans text-[11px] uppercase tracking-[0.2em] font-bold ${
-                    isSunMode ? 'text-[#C85D25]' : 'text-[#C87D55]'
+                    isSunMode ? 'text-[#D49A3D]' : 'text-[#C87D55]'
                   }`}
                 >
                   Easiest Onboarding — Direct Line: 80771 71541
@@ -277,7 +277,7 @@ export default function HomePage() {
               </div>
               <p
                 className={`text-[13px] sm:text-[14px] font-sans mb-3 leading-snug ${
-                  isSunMode ? 'text-[#0B0E0B]/90 font-medium' : 'text-[#F2EFE9]'
+                  isSunMode ? 'text-[#1A1A1A] font-medium' : 'text-[#F2EFE9]'
                 }`}
               >
                 Want to discuss your project immediately? Call founder directly or tap to chat on WhatsApp:
@@ -295,7 +295,7 @@ export default function HomePage() {
                   rel="noreferrer"
                   className={`px-4 py-2.5 border transition-all text-[13px] font-sans font-semibold flex items-center gap-2 ${
                     isSunMode
-                      ? 'bg-white border-[#5E7161]/60 text-[#0B0E0B] hover:bg-[#F2EFE9]'
+                      ? 'bg-white border-[#5E7161]/60 text-[#1A1A1A] hover:bg-[#FBF9F1]'
                       : 'bg-[#141E15] text-[#F2EFE9] border-[#5E7161] hover:bg-[#1B2B1D]'
                   }`}
                 >
@@ -306,7 +306,7 @@ export default function HomePage() {
                   onClick={() => handleChapterChange(0)}
                   className={`px-3.5 py-2 text-[12px] font-sans uppercase tracking-[0.12em] font-semibold border transition-all ml-auto sm:ml-0 ${
                     isSunMode
-                      ? 'border-[#0B0E0B]/25 text-[#0B0E0B] hover:bg-[#0B0E0B]/5'
+                      ? 'border-[rgba(26,26,26,0.2)] text-[#1A1A1A] hover:bg-black/5'
                       : 'border-[rgba(242,239,233,0.18)] text-[#F2EFE9] hover:bg-white/5'
                   }`}
                 >
@@ -326,32 +326,32 @@ export default function HomePage() {
           >
             <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 md:px-16 lg:px-24">
               <div
-                className={`ml-auto max-w-[650px] lg:max-w-[580px] pointer-events-auto backdrop-blur-md p-6 sm:p-10 md:p-12 border shadow-2xl transition-colors duration-500 ${
+                className={`ml-auto max-w-[650px] lg:max-w-[580px] pointer-events-auto backdrop-blur-md p-6 sm:p-10 md:p-12 border transition-colors duration-500 ${
                   isSunMode
-                    ? 'bg-[#FAF7F2]/95 border-[#0B0E0B]/16 text-[#0B0E0B]'
-                    : 'bg-[#0B0E0B]/80 border-[rgba(242,239,233,0.12)] text-[#F2EFE9]'
+                    ? 'bg-[#FDFBF7]/95 border-[rgba(26,26,26,0.1)] text-[#1A1A1A] shadow-[0_16px_40px_rgba(26,26,26,0.06),0_2px_8px_rgba(26,26,26,0.03)]'
+                    : 'bg-[#0B0E0B]/80 border-[rgba(242,239,233,0.12)] text-[#F2EFE9] shadow-2xl'
                 }`}
               >
                 {/* Chapter Meta */}
                 <div
                   className={`flex items-center justify-between gap-4 mb-6 pb-4 border-b ${
-                    isSunMode ? 'border-[#0B0E0B]/14' : 'border-[rgba(242,239,233,0.14)]'
+                    isSunMode ? 'border-[rgba(26,26,26,0.08)]' : 'border-[rgba(242,239,233,0.14)]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <span
                       className={`font-sans text-[12px] sm:text-[13px] uppercase tracking-[0.2em] font-bold ${
-                        isSunMode ? 'text-[#C85D25]' : 'text-[#C87D55]'
+                        isSunMode ? 'text-[#D49A3D]' : 'text-[#C87D55]'
                       }`}
                     >
                       Chapter {chapter.numeral}
                     </span>
-                    <span className={`text-[13px] font-sans ${isSunMode ? 'text-[#0B0E0B]/35' : 'text-[#A3A89E]/40'}`}>
+                    <span className={`text-[13px] font-sans ${isSunMode ? 'text-[#1A1A1A]/30' : 'text-[#A3A89E]/40'}`}>
                       /
                     </span>
                     <span
                       className={`font-sans text-[12px] sm:text-[13px] uppercase tracking-[0.16em] font-medium ${
-                        isSunMode ? 'text-[#0B0E0B]/80' : 'text-[#A3A89E]'
+                        isSunMode ? 'text-[#4A4D4A]' : 'text-[#A3A89E]'
                       }`}
                     >
                       {chapter.title}
@@ -371,7 +371,7 @@ export default function HomePage() {
                 {/* Headline with Italic Accents */}
                 <h2
                   className={`text-[clamp(2.3rem,4.8vw,3.4rem)] leading-[1.05] tracking-[-0.025em] mb-6 font-medium ${
-                    isSunMode ? 'text-[#0B0E0B]' : 'text-[#F2EFE9]'
+                    isSunMode ? 'text-[#1A1A1A]' : 'text-[#F2EFE9]'
                   }`}
                   style={{ fontFamily: 'var(--font-serif)' }}
                 >
@@ -394,10 +394,10 @@ export default function HomePage() {
                   })}
                 </h2>
 
-                {/* Body Paragraph */}
+                {/* Body Paragraph with Rich Charcoal in Sun Mode */}
                 <p
                   className={`text-[16px] sm:text-[17px] leading-[1.8] font-sans mb-7 ${
-                    isSunMode ? 'text-[#2D352E] font-medium' : 'text-[#A3A89E] font-normal'
+                    isSunMode ? 'text-[#1A1A1A] font-normal' : 'text-[#A3A89E] font-normal'
                   }`}
                 >
                   {chapter.body}
@@ -407,7 +407,7 @@ export default function HomePage() {
                 <div
                   className={`mb-7 p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                     isSunMode
-                      ? 'bg-[#F2ECE1] border-[#0B0E0B]/14'
+                      ? 'bg-[#F5F1E6] border-[rgba(26,26,26,0.08)]'
                       : 'bg-[#111712] border-[rgba(242,239,233,0.12)]'
                   }`}
                 >
@@ -417,14 +417,14 @@ export default function HomePage() {
                     </span>
                     <span
                       className={`text-[14px] font-sans font-semibold ${
-                        isSunMode ? 'text-[#0B0E0B]' : 'text-[#F2EFE9]'
+                        isSunMode ? 'text-[#1A1A1A]' : 'text-[#F2EFE9]'
                       }`}
                     >
                       {chapter.liveCaseStudy.name}
                     </span>
                     <p
                       className={`text-[12px] font-sans ${
-                        isSunMode ? 'text-[#0B0E0B]/75' : 'text-[#A3A89E]'
+                        isSunMode ? 'text-[#4A4D4A]' : 'text-[#A3A89E]'
                       }`}
                     >
                       {chapter.liveCaseStudy.desc}
@@ -445,7 +445,7 @@ export default function HomePage() {
                 {/* Architectural Features Tagline */}
                 <div
                   className={`flex flex-wrap items-center gap-2.5 mb-8 pt-4 border-t ${
-                    isSunMode ? 'border-[#0B0E0B]/12' : 'border-[rgba(242,239,233,0.1)]'
+                    isSunMode ? 'border-[rgba(26,26,26,0.08)]' : 'border-[rgba(242,239,233,0.1)]'
                   }`}
                 >
                   {chapter.features.map((feat) => (
@@ -453,7 +453,7 @@ export default function HomePage() {
                       key={feat}
                       className={`text-[12px] font-sans tracking-[0.08em] py-1.5 px-3 border font-medium ${
                         isSunMode
-                          ? 'border-[#0B0E0B]/16 text-[#0B0E0B] bg-white/60'
+                          ? 'border-[rgba(26,26,26,0.12)] text-[#1A1A1A] bg-white/70'
                           : 'border-[rgba(242,239,233,0.14)] text-[#F2EFE9] bg-[rgba(242,239,233,0.03)]'
                       }`}
                     >
@@ -469,7 +469,7 @@ export default function HomePage() {
                     onClick={() => setActiveShowcase(chapter.showcase)}
                     className={`group flex items-center gap-2.5 transition-colors focus:outline-none ${
                       isSunMode
-                        ? 'text-[#0B0E0B] hover:text-[#C85D25]'
+                        ? 'text-[#1A1A1A] hover:text-[#C85D25]'
                         : 'text-[#F2EFE9] hover:text-[#C87D55]'
                     }`}
                     style={{ fontFamily: 'var(--font-serif)' }}
@@ -504,7 +504,7 @@ export default function HomePage() {
                       onClick={() => setDrawerOpen(true)}
                       className={`text-[12px] sm:text-[13px] font-sans uppercase tracking-[0.14em] font-semibold transition-colors ${
                         isSunMode
-                          ? 'text-[#0B0E0B]/70 hover:text-[#0B0E0B]'
+                          ? 'text-[#4A4D4A] hover:text-[#1A1A1A]'
                           : 'text-[#A3A89E] hover:text-[#F2EFE9]'
                       }`}
                     >
@@ -521,7 +521,7 @@ export default function HomePage() {
         <footer
           className={`relative z-20 py-20 border-t transition-colors duration-500 pointer-events-auto ${
             isSunMode
-              ? 'bg-[#FAF7F2] border-[#0B0E0B]/14 text-[#0B0E0B]'
+              ? 'bg-[#FBF9F1] border-[rgba(26,26,26,0.08)] text-[#1A1A1A]'
               : 'bg-[#0B0E0B] border-[rgba(242,239,233,0.14)] text-[#F2EFE9]'
           }`}
         >
@@ -540,7 +540,7 @@ export default function HomePage() {
                 </h3>
                 <p
                   className={`text-[15px] leading-[1.75] max-w-[340px] font-sans ${
-                    isSunMode ? 'text-[#2D352E]' : 'text-[#A3A89E]'
+                    isSunMode ? 'text-[#4A4D4A]' : 'text-[#A3A89E]'
                   }`}
                 >
                   We craft bespoke digital storefronts, fast launch websites, and web applications for founders whose work speaks with quiet authority.
@@ -559,7 +559,7 @@ export default function HomePage() {
               {/* Center: Live Projects Directory */}
               <div
                 className={`space-y-3 text-[14px] font-sans ${
-                  isSunMode ? 'text-[#2D352E]' : 'text-[#A3A89E]'
+                  isSunMode ? 'text-[#4A4D4A]' : 'text-[#A3A89E]'
                 }`}
               >
                 <span className="text-[11px] tracking-[0.22em] uppercase text-[#5E7161] font-bold block mb-3">
@@ -608,7 +608,7 @@ export default function HomePage() {
                   <a
                     href="mailto:hello@vibesite.in"
                     className={`text-[14px] hover:text-[#C87D55] transition-colors border-b pb-0.5 ${
-                      isSunMode ? 'text-[#0B0E0B]/70 border-[#0B0E0B]/20' : 'text-[#A3A89E] border-[rgba(242,239,233,0.2)]'
+                      isSunMode ? 'text-[#4A4D4A] border-[rgba(26,26,26,0.15)]' : 'text-[#A3A89E] border-[rgba(242,239,233,0.2)]'
                     }`}
                   >
                     hello@vibesite.in
@@ -626,7 +626,7 @@ export default function HomePage() {
                     onClick={() => setDrawerOpen(true)}
                     className={`px-5 py-3 border font-sans font-bold uppercase tracking-[0.1em] transition-colors shadow-md text-[13px] ${
                       isSunMode
-                        ? 'border-[#0B0E0B] text-[#0B0E0B] hover:bg-[#0B0E0B] hover:text-[#F2EFE9]'
+                        ? 'border-[rgba(26,26,26,0.3)] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-[#FDFBF7]'
                         : 'border-[#F2EFE9] text-[#F2EFE9] hover:bg-[#F2EFE9] hover:text-[#0B0E0B]'
                     }`}
                   >
@@ -640,7 +640,7 @@ export default function HomePage() {
             <div
               className={`pt-8 border-t flex flex-col sm:flex-row items-center justify-between text-[12px] font-sans gap-4 ${
                 isSunMode
-                  ? 'border-[#0B0E0B]/10 text-[#0B0E0B]/60'
+                  ? 'border-[rgba(26,26,26,0.08)] text-[#4A4D4A]'
                   : 'border-[rgba(242,239,233,0.08)] text-[#A3A89E]/70'
               }`}
             >
@@ -660,6 +660,7 @@ export default function HomePage() {
         type={activeShowcase}
         onClose={() => setActiveShowcase(null)}
         onOpenDrawer={() => setDrawerOpen(true)}
+        season={season}
       />
 
       {/* Slide-Over Project Scope & Estimate Drawer */}

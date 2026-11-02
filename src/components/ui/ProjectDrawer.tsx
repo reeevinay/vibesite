@@ -147,22 +147,22 @@ Can we connect for a quick 5-minute call?`
         }`}
       />
 
-      {/* Slide-Over Sheet: Warm Parchment Architectural Spec */}
+      {/* Slide-Over Sheet: Warm Cream Architectural Spec */}
       <aside
         aria-label="Project Scope Specification"
-        className={`fixed top-0 right-0 bottom-0 z-[70] w-full max-w-[580px] bg-[#F2EFE9] text-[#0B0E0B] shadow-2xl overflow-y-auto transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 right-0 bottom-0 z-[70] w-full max-w-[580px] bg-[#FDFBF7] text-[#1A1A1A] shadow-[0_20px_60px_rgba(26,26,26,0.18)] overflow-y-auto transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="p-5 sm:p-8 md:p-12 flex flex-col min-h-full">
           {/* Top Bar: Title & 1px Close Button */}
-          <div className="flex items-start justify-between pb-5 border-b border-[rgba(11,14,11,0.18)]">
+          <div className="flex items-start justify-between pb-5 border-b border-[rgba(26,26,26,0.12)]">
             <div>
               <span className="text-[11px] tracking-[0.22em] uppercase font-sans text-[#5E7161] font-bold block mb-1">
                 vibesite studio — Specification Sheet
               </span>
               <h2
-                className="text-[32px] sm:text-[38px] tracking-[-0.03em] leading-none text-[#0B0E0B] font-semibold"
+                className="text-[32px] sm:text-[38px] tracking-[-0.03em] leading-none text-[#1A1A1A] font-semibold"
                 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
               >
                 Project Scope &amp; Estimate
@@ -172,7 +172,7 @@ Can we connect for a quick 5-minute call?`
             <button
               type="button"
               onClick={onClose}
-              className="p-2 -mr-2 text-[#0B0E0B] hover:text-[#C87D55] transition-colors focus:outline-none"
+              className="p-2 -mr-2 text-[#1A1A1A] hover:text-[#C87D55] transition-colors focus:outline-none"
               title="Close drawer"
             >
               <svg

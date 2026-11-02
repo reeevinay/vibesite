@@ -127,20 +127,32 @@ export const grassFragmentShader = /* glsl */ `
       color = mix(midColor, tipColor, (vHeight - 0.3) / 0.7);
     }
 
-    // --- Vibrant Sun Mode Brightness Boost ---
-    // When Sun Mode is active, brighten grass with lush sun-drenched green & golden warm straw tips
-    vec3 sunGrass = mix(vec3(0.25, 0.44, 0.22), vec3(0.88, 0.72, 0.42), vHeight);
-    color = mix(color, sunGrass, uSunMode * 0.75);
+    // --- Warm Natural Sunlight Aesthetic in Sun Mode ---
+    // Natural lush warm meadow green at root/mid, with subtle golden honey sunlight kiss at tips
+    vec3 sunRoot = vec3(0.12, 0.20, 0.11);
+    vec3 sunMid  = vec3(0.26, 0.42, 0.22);
+    vec3 sunGoldenTip = vec3(0.85, 0.65, 0.28); // Subtle warm golden highlight
+
+    vec3 sunGrassColor;
+    if (vHeight < 0.35) {
+      sunGrassColor = mix(sunRoot, sunMid, vHeight / 0.35);
+    } else {
+      sunGrassColor = mix(sunMid, sunGoldenTip, (vHeight - 0.35) / 0.65);
+    }
+
+    // Smoothly blend in Sun Mode without washing out or blowing highlights
+    color = mix(color, sunGrassColor, uSunMode * 0.72);
 
     // Add per-blade color variation
     float bladeVariation = noise2D(vWorldPosition.xz * 2.5) * 0.08 - 0.04;
     color += bladeVariation;
 
-    // Fresnel / rim lighting
+    // Fresnel / rim lighting: warm subtle golden sunlight rim in Sun Mode
     vec3 viewDir = normalize(cameraPosition - vWorldPosition);
     float fresnel = 1.0 - abs(dot(viewDir, vNormal));
     fresnel = pow(fresnel, 3.0);
-    color += fresnel * vec3(0.12, 0.15, 0.1) * vHeight;
+    vec3 rimColor = mix(vec3(0.12, 0.15, 0.1), vec3(0.32, 0.26, 0.12), uSunMode);
+    color += fresnel * rimColor * vHeight;
 
     // Subsurface scattering approximation at tips
     float sss = pow(vHeight, 2.5) * 0.15;

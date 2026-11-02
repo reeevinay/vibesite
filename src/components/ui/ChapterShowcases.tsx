@@ -6,13 +6,16 @@ interface ShowcaseModalProps {
   type: 'mist' | 'store' | 'reach' | 'sky' | null
   onClose: () => void
   onOpenDrawer: () => void
+  season?: 'Dawn' | 'Sun' | 'Night'
 }
 
 export default function ChapterShowcases({
   type,
   onClose,
   onOpenDrawer,
+  season = 'Dawn',
 }: ShowcaseModalProps) {
+  const isSunMode = season === 'Sun'
   // State for Chapter I
   const [mistMode, setMistMode] = useState<'craft' | 'ai'>('craft')
 
@@ -39,20 +42,38 @@ export default function ChapterShowcases({
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-[#0B0E0B]/80 backdrop-blur-md transition-opacity duration-300"
+        className={`fixed inset-0 backdrop-blur-md transition-opacity duration-300 ${
+          isSunMode ? 'bg-[#1A1A1A]/40' : 'bg-[#0B0E0B]/80'
+        }`}
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-[860px] max-h-[92vh] overflow-y-auto bg-[#0B0E0B] border border-[rgba(242,239,233,0.22)] shadow-2xl p-5 sm:p-8 md:p-12 text-[#F2EFE9] z-10">
+      <div
+        className={`relative w-full max-w-[860px] max-h-[92vh] overflow-y-auto border p-5 sm:p-8 md:p-12 z-10 transition-colors ${
+          isSunMode
+            ? 'bg-[#FDFBF7] border-[rgba(26,26,26,0.12)] text-[#1A1A1A] shadow-[0_20px_60px_rgba(26,26,26,0.14)]'
+            : 'bg-[#0B0E0B] border-[rgba(242,239,233,0.22)] text-[#F2EFE9] shadow-2xl'
+        }`}
+      >
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-5 sm:pb-6 mb-6 border-b border-[rgba(242,239,233,0.14)]">
+        <div
+          className={`flex items-center justify-between pb-5 sm:pb-6 mb-6 border-b ${
+            isSunMode ? 'border-[rgba(26,26,26,0.1)]' : 'border-[rgba(242,239,233,0.14)]'
+          }`}
+        >
           <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
-            <span className="font-sans text-[11px] sm:text-[12px] uppercase tracking-[0.18em] text-[#C87D55] font-bold">
+            <span
+              className={`font-sans text-[11px] sm:text-[12px] uppercase tracking-[0.18em] font-bold ${
+                isSunMode ? 'text-[#D49A3D]' : 'text-[#C87D55]'
+              }`}
+            >
               vibesite Interactive Studio
             </span>
-            <span className="text-[13px] text-[#A3A89E] font-sans">/</span>
+            <span className={`text-[13px] font-sans ${isSunMode ? 'text-[#4A4D4A]/50' : 'text-[#A3A89E]'}`}>/</span>
             <span
-              className="text-[18px] sm:text-[21px] text-[#F2EFE9] font-medium"
+              className={`text-[18px] sm:text-[21px] font-medium ${
+                isSunMode ? 'text-[#1A1A1A]' : 'text-[#F2EFE9]'
+              }`}
               style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
             >
               {type === 'mist' && 'Chapter I — Part the Mist: Human Craft vs AI Cliché'}
@@ -65,7 +86,9 @@ export default function ChapterShowcases({
           <button
             type="button"
             onClick={onClose}
-            className="text-[#A3A89E] hover:text-[#F2EFE9] p-2 transition-colors focus:outline-none"
+            className={`p-2 transition-colors focus:outline-none ${
+              isSunMode ? 'text-[#4A4D4A] hover:text-[#1A1A1A]' : 'text-[#A3A89E] hover:text-[#F2EFE9]'
+            }`}
             title="Close showcase"
           >
             <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4">
