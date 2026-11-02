@@ -50,7 +50,7 @@ function terrainHeight(x: number, z: number): number {
 const GRASS_COUNT = 12000
 const GRASS_AREA = 30
 
-function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) {
+function GrassField() {
   const meshRef = useRef<THREE.InstancedMesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0))
@@ -62,7 +62,6 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
     const posAttr = geo.attributes.position as THREE.BufferAttribute
     const posArray = posAttr.array as Float32Array
 
-    // Taper top vertices – blade is in XY plane, Y going up 0->1
     for (let i = 0; i < posArray.length; i += 3) {
       const yNorm = posArray[i + 1] + 0.5
       const taper = 1.0 - yNorm * 0.9
@@ -70,10 +69,7 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
     }
     posAttr.needsUpdate = true
 
-    // Shift pivot to base (bottom of blade)
     geo.translate(0, 0.5, 0)
-
-    // Set bounding sphere so frustum culling works safely on instanced meadow
     geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), GRASS_AREA * 0.85)
 
     const oArr = new Float32Array(GRASS_COUNT * 3)
@@ -106,12 +102,10 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
       uTime: { value: 0 },
       uWindStrength: { value: 0.4 },
       uMouseWorld: { value: new THREE.Vector3(0, 0, 0) },
-      uSunMode: { value: season === 'Sun' ? 1.0 : 0.0 },
     }),
     []
   )
 
-  // Attach instanced attributes and freeze static mouse hit planes
   useEffect(() => {
     if (!meshRef.current) return
     const geo = meshRef.current.geometry
@@ -123,7 +117,6 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
     groundMesh2.current?.updateMatrix()
   }, [offsets, scales, phases])
 
-  // Explicit disposal on unmount to prevent GPU memory leaks
   useEffect(() => {
     return () => {
       bladeGeo.dispose()
@@ -131,38 +124,22 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
     }
   }, [bladeGeo])
 
-  const handlePointerMove = useCallback(
-    (e: ThreeEvent<PointerEvent>) => {
-      if (e.point) {
-        mouseWorld.current.copy(e.point)
-      }
-    },
-    []
-  )
+  const handlePointerMove = useCallback((e: ThreeEvent<PointerEvent>) => {
+    if (e.point) {
+      mouseWorld.current.copy(e.point)
+    }
+  }, [])
 
-  // Frame-rate independent animation driven by Delta time
   useFrame(({ clock }, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
-
-      // Exponential decay lerp for mouse world coordinates
       const mouseLerp = 1.0 - Math.exp(-12 * delta)
       matRef.current.uniforms.uMouseWorld.value.lerp(mouseWorld.current, mouseLerp)
-
-      // Exponential decay lerp for Sun Mode transition
-      const targetSun = season === 'Sun' ? 1.0 : 0.0
-      const sunLerp = 1.0 - Math.exp(-5 * delta)
-      matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
-        matRef.current.uniforms.uSunMode.value,
-        targetSun,
-        sunLerp
-      )
     }
   })
 
   return (
     <>
-      {/* Static ground planes for mouse tracking with matrixAutoUpdate disabled */}
       <mesh
         ref={groundMesh1}
         rotation={[-Math.PI / 2, 0, 0]}
@@ -204,13 +181,7 @@ function GrassField({ season = 'Dawn' }: { season?: 'Dawn' | 'Sun' | 'Night' }) 
 // Terrain
 // ---------------------------------------------------------------------------
 
-function Terrain({
-  season = 'Dawn',
-  isMobile = false,
-}: {
-  season?: 'Dawn' | 'Sun' | 'Night'
-  isMobile?: boolean
-}) {
+function Terrain({ isMobile = false }: { isMobile?: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
   const geoRef = useRef<THREE.PlaneGeometry>(null)
@@ -218,34 +189,21 @@ function Terrain({
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uSunMode: { value: season === 'Sun' ? 1.0 : 0.0 },
     }),
     []
   )
 
-  // Freeze static matrix calculation on mount
   useEffect(() => {
     meshRef.current?.updateMatrix()
-  }, [])
-
-  // Explicit disposal on unmount
-  useEffect(() => {
     return () => {
       geoRef.current?.dispose()
       matRef.current?.dispose()
     }
   }, [])
 
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock }) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
-      const targetSun = season === 'Sun' ? 1.0 : 0.0
-      const sunLerp = 1.0 - Math.exp(-5 * delta)
-      matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
-        matRef.current.uniforms.uSunMode.value,
-        targetSun,
-        sunLerp
-      )
     }
   })
 
@@ -273,14 +231,13 @@ function Terrain({
 // ---------------------------------------------------------------------------
 
 interface WaterPlaneProps {
-  season?: 'Dawn' | 'Sun' | 'Night'
   onWaterClick?: () => void
   onSpawnParticles?: (origin: THREE.Vector3) => void
 }
 
 const MAX_RIPPLES = 5
 
-function WaterPlane({ season = 'Dawn', onWaterClick, onSpawnParticles }: WaterPlaneProps) {
+function WaterPlane({ onWaterClick, onSpawnParticles }: WaterPlaneProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
   const geoRef = useRef<THREE.CircleGeometry>(null)
@@ -291,7 +248,6 @@ function WaterPlane({ season = 'Dawn', onWaterClick, onSpawnParticles }: WaterPl
     const times = new Float32Array(MAX_RIPPLES).fill(-100)
     return {
       uTime: { value: 0 },
-      uSunMode: { value: season === 'Sun' ? 1.0 : 0.0 },
       uRippleOrigins: { value: origins },
       uRippleTimes: { value: times },
       uRippleCount: { value: MAX_RIPPLES },
@@ -329,16 +285,9 @@ function WaterPlane({ season = 'Dawn', onWaterClick, onSpawnParticles }: WaterPl
     [onWaterClick, onSpawnParticles]
   )
 
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock }) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
-      const targetSun = season === 'Sun' ? 1.0 : 0.0
-      const sunLerp = 1.0 - Math.exp(-5 * delta)
-      matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
-        matRef.current.uniforms.uSunMode.value,
-        targetSun,
-        sunLerp
-      )
     }
   })
 
@@ -582,7 +531,6 @@ function CameraRig({ currentChapter }: CameraRigProps) {
     currentLookAt.current.y = THREE.MathUtils.lerp(currentLookAt.current.y, wp.lookAt.y, damping)
     currentLookAt.current.z = THREE.MathUtils.lerp(currentLookAt.current.z, wp.lookAt.z, damping)
 
-    // Mouse parallax driven by delta time
     const mouseLerp = 1.0 - Math.exp(-6 * delta)
     mouseOffset.current.x = THREE.MathUtils.lerp(
       mouseOffset.current.x,
@@ -625,7 +573,7 @@ function VolumetricLight({
   season = 'Dawn',
 }: {
   currentChapter: number
-  season?: 'Dawn' | 'Sun' | 'Night'
+  season?: 'Dawn' | 'Night'
 }) {
   const groupRef = useRef<THREE.Group>(null)
   const materialsRef = useRef<THREE.MeshBasicMaterial[]>([])
@@ -659,8 +607,6 @@ function VolumetricLight({
     let targetColor: THREE.Color
     if (season === 'Night') {
       targetColor = new THREE.Color(0x4a72a8)
-    } else if (season === 'Sun') {
-      targetColor = new THREE.Color(0xdf9e38) // Subtle warm golden sun ray highlight
     } else {
       const chapter = Math.max(0, Math.min(3, currentChapter))
       targetColor = CHAPTER_LIGHT_COLORS[chapter]
@@ -886,7 +832,7 @@ function CelestialNightSky({ active }: { active: boolean }) {
 // Dynamic Atmospheric Shifter (Background, Fog, Lighting)
 // ---------------------------------------------------------------------------
 
-function AtmosphereManager({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
+function AtmosphereManager({ season }: { season: 'Dawn' | 'Night' }) {
   const { scene } = useThree()
   const currentBg = useRef(new THREE.Color(0x0b0e0b))
   const currentFog = useRef(new THREE.Color(0x0b0e0b))
@@ -898,13 +844,6 @@ function AtmosphereManager({ season }: { season: 'Dawn' | 'Sun' | 'Night' }) {
           bgColor: new THREE.Color(0x040714),
           fogColor: new THREE.Color(0x040714),
           fogDensity: 0.038,
-        }
-      case 'Sun':
-        return {
-          // Soft off-white / warm cream base (#FBF9F1)
-          bgColor: new THREE.Color(0xfbf9f1),
-          fogColor: new THREE.Color(0xfbf9f1),
-          fogDensity: 0.016,
         }
       case 'Dawn':
       default:
@@ -946,7 +885,7 @@ function DynamicLighting({
   season,
   isMobile = false,
 }: {
-  season: 'Dawn' | 'Sun' | 'Night'
+  season: 'Dawn' | 'Night'
   isMobile?: boolean
 }) {
   const ambRef = useRef<THREE.AmbientLight>(null)
@@ -961,21 +900,13 @@ function DynamicLighting({
           dirColor: new THREE.Color(0x7ba7db),
           dirIntensity: 0.35,
         }
-      case 'Sun':
-        return {
-          // Natural warm sunlight aesthetic: soft off-white ambient & subtle golden sunlight
-          ambColor: new THREE.Color(0xfefcf5),
-          ambIntensity: 0.72,
-          dirColor: new THREE.Color(0xf6d69e),
-          dirIntensity: 0.95,
-        }
       case 'Dawn':
       default:
         return {
           ambColor: new THREE.Color(0xf2efe9),
-          ambIntensity: 0.2,
+          ambIntensity: 0.22,
           dirColor: new THREE.Color(0xc87d55),
-          dirIntensity: 0.5,
+          dirIntensity: 0.55,
         }
     }
   }, [season])
@@ -994,10 +925,10 @@ function DynamicLighting({
 
   return (
     <>
-      <ambientLight ref={ambRef} intensity={0.2} color={0xf2efe9} />
+      <ambientLight ref={ambRef} intensity={0.22} color={0xf2efe9} />
       <directionalLight
         ref={dirRef}
-        intensity={0.5}
+        intensity={0.55}
         color={0xc87d55}
         position={[5, 8, 3]}
         castShadow={!isMobile}
@@ -1021,7 +952,7 @@ function DynamicLighting({
 
 interface LivingMeadowSceneProps {
   currentChapter: number
-  season?: 'Dawn' | 'Sun' | 'Night'
+  season?: 'Dawn' | 'Night'
   onWaterClick?: () => void
 }
 
@@ -1033,7 +964,6 @@ export default function LivingMeadowScene({
   const [spawnQueue, setSpawnQueue] = useState<THREE.Vector3[]>([])
   const [isMobile, setIsMobile] = useState(false)
 
-  // Track viewport breakpoint for mobile shadow map and pixel ratio optimizations
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -1064,13 +994,12 @@ export default function LivingMeadowScene({
         height: '100vh',
       }}
       onCreated={({ gl, scene }) => {
-        // Adaptive pixel ratio: capped at 1.5 on mobile to eliminate thermal throttling, capped at 2 on desktop
         const maxDpr = Math.min(
           typeof window !== 'undefined' ? window.devicePixelRatio : 1,
           window.innerWidth < 768 ? 1.5 : 2
         )
         gl.setPixelRatio(maxDpr)
-        const bgHex = season === 'Sun' ? 0xfbf9f1 : season === 'Night' ? 0x040714 : 0x0b0e0b
+        const bgHex = season === 'Night' ? 0x040714 : 0x0b0e0b
         scene.background = new THREE.Color(bgHex)
       }}
     >
@@ -1079,9 +1008,9 @@ export default function LivingMeadowScene({
 
       {/* Scene components */}
       <CameraRig currentChapter={currentChapter} />
-      <Terrain season={season} isMobile={isMobile} />
-      <GrassField season={season} />
-      <WaterPlane season={season} onWaterClick={onWaterClick} onSpawnParticles={handleSpawnParticles} />
+      <Terrain isMobile={isMobile} />
+      <GrassField />
+      <WaterPlane onWaterClick={onWaterClick} onSpawnParticles={handleSpawnParticles} />
       <SporeParticles spawnQueue={spawnQueue} />
       <VolumetricLight currentChapter={currentChapter} season={season} />
       <MistPlanes />

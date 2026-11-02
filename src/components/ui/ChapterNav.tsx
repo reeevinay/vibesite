@@ -3,7 +3,6 @@
 interface ChapterNavProps {
   currentChapter: number
   onChapterChange: (chapterIndex: number) => void
-  season?: 'Dawn' | 'Sun' | 'Night'
 }
 
 const chapters = [
@@ -16,29 +15,14 @@ const chapters = [
 export default function ChapterNav({
   currentChapter,
   onChapterChange,
-  season = 'Dawn',
 }: ChapterNavProps) {
-  const isSunMode = season === 'Sun'
-
   return (
     <nav
       aria-label="Editorial chapter navigation"
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 select-none pointer-events-auto"
+      className="fixed bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 select-none pointer-events-auto max-w-[94vw]"
     >
-      <div
-        className={`flex items-center gap-1 sm:gap-2 backdrop-blur-md px-3 sm:px-4 py-2 border transition-colors duration-300 ${
-          isSunMode
-            ? 'bg-[#FDFBF7]/95 border-[rgba(26,26,26,0.12)] text-[#1A1A1A] shadow-[0_8px_30px_rgba(26,26,26,0.08)]'
-            : 'bg-[#0B0E0B]/90 border-[rgba(242,239,233,0.16)] text-[#F2EFE9] shadow-2xl'
-        }`}
-      >
-        <span
-          className={`hidden md:inline-block text-[10px] font-sans uppercase tracking-[0.2em] font-bold mr-2 border-r pr-3 ${
-            isSunMode
-              ? 'text-[#5E7161] border-[rgba(26,26,26,0.12)]'
-              : 'text-[#5E7161] border-[rgba(242,239,233,0.14)]'
-          }`}
-        >
+      <div className="flex items-center gap-1 sm:gap-2 backdrop-blur-md px-2.5 sm:px-4 py-1.5 sm:py-2 border border-[rgba(242,239,233,0.16)] bg-[#0B0E0B]/90 text-[#F2EFE9] shadow-2xl">
+        <span className="hidden md:inline-block text-[10px] font-sans uppercase tracking-[0.2em] font-bold mr-1 border-r border-[rgba(242,239,233,0.14)] pr-3 text-[#5E7161]">
           Chapters
         </span>
 
@@ -50,11 +34,9 @@ export default function ChapterNav({
               key={ch.numeral}
               type="button"
               onClick={() => onChapterChange(idx)}
-              className={`group flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-[12px] font-sans transition-all focus:outline-none ${
+              className={`group flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 text-[11px] sm:text-[12px] font-sans transition-all focus:outline-none ${
                 isActive
                   ? 'bg-[#C87D55] text-[#F2EFE9] font-bold shadow-sm'
-                  : isSunMode
-                  ? 'text-[#4A4D4A] hover:text-[#1A1A1A] hover:bg-black/5'
                   : 'text-[#A3A89E] hover:text-[#F2EFE9] hover:bg-white/5'
               }`}
               title={`${ch.numeral}. ${ch.title} — ${ch.label}`}

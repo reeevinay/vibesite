@@ -8,14 +8,6 @@
   --sage-canopy: #5E7161;
   --dried-moss: #3A473C;
 
-  /* Natural Warm Sunlight Palette (Sun Mode) */
-  --sun-cream: #FBF9F1;
-  --sun-surface: #FDFBF7;
-  --sun-charcoal: #1A1A1A;
-  --sun-charcoal-muted: #4A4D4A;
-  --sun-gold: #D49A3D;
-  --sun-terracotta: #C85D25;
-
   --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
   --font-sans: var(--font-jakarta), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 }
@@ -27,12 +19,6 @@
   --color-terracotta: #C87D55;
   --color-sage: #5E7161;
   --color-moss: #3A473C;
-
-  --color-sun-cream: #FBF9F1;
-  --color-sun-surface: #FDFBF7;
-  --color-sun-charcoal: #1A1A1A;
-  --color-sun-muted: #4A4D4A;
-  --color-sun-gold: #D49A3D;
 }
 
 /* ── Cursor: Custom magnetic cursor only on fine pointers (desktop) ── */
@@ -99,9 +85,10 @@ html {
   scroll-behavior: smooth;
 }
 
-/* ── Mobile responsiveness adjustments ────────── */
+/* ── Mobile responsiveness adjustments - spacious & breathable ── */
 @media (max-width: 640px) {
   body {
-    font-size: 15px;
+    font-size: 16px;
+    line-height: 1.7;
   }
 }

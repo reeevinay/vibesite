@@ -62,8 +62,6 @@ export const grassVertexShader = /* glsl */ `
 export const grassFragmentShader = /* glsl */ `
   precision highp float;
 
-  uniform float uSunMode;
-
   varying vec2 vUv;
   varying float vHeight;
   varying vec3 vNormal;
@@ -87,56 +85,41 @@ export const grassFragmentShader = /* glsl */ `
   }
 
   void main() {
-    // Nocturnal / Dawn blade colors
-    vec3 rootColor = vec3(0.043, 0.055, 0.043);
-    vec3 sageTip   = vec3(0.56, 0.64, 0.57);
-    vec3 ochreTip  = vec3(0.78, 0.49, 0.33);
+    // Deep obsidian root color
+    vec3 rootColor = vec3(0.043, 0.055, 0.043); // #0B0E0B
+
+    // Tip colors: delicate sage canopy and warm terracotta ochre
+    vec3 sageTip  = vec3(0.56, 0.64, 0.57); // #8FA392
+    vec3 ochreTip = vec3(0.78, 0.49, 0.33); // #C87D55
 
     float tipNoise = noise2D(vWorldPosition.xz * 0.8);
     float ochreBlend = smoothstep(0.35, 0.7, tipNoise);
-    vec3 darkTipColor = mix(sageTip, ochreTip, ochreBlend * 0.45);
-    vec3 darkMidColor = vec3(0.15, 0.22, 0.15);
+    vec3 tipColor = mix(sageTip, ochreTip, ochreBlend * 0.45);
 
-    vec3 darkColor;
+    vec3 midColor = vec3(0.16, 0.24, 0.16);
+
+    vec3 color;
     if (vHeight < 0.3) {
-      darkColor = mix(rootColor, darkMidColor, vHeight / 0.3);
+      color = mix(rootColor, midColor, vHeight / 0.3);
     } else {
-      darkColor = mix(darkMidColor, darkTipColor, (vHeight - 0.3) / 0.7);
+      color = mix(midColor, tipColor, (vHeight - 0.3) / 0.7);
     }
-
-    // --- Luminous Sun Mode Blade Colors ---
-    // Warm sunlit sage base rising into sun-kissed meadow green and golden wheat tips
-    vec3 sunRoot      = vec3(0.42, 0.50, 0.32); // Sunlit earth base (warm, not black!)
-    vec3 sunMid       = vec3(0.55, 0.68, 0.38); // Lush sunlit clover green
-    vec3 sunGoldenTip = vec3(0.90, 0.78, 0.44); // Honey-golden sunlight tips
-
-    vec3 sunColor;
-    if (vHeight < 0.35) {
-      sunColor = mix(sunRoot, sunMid, vHeight / 0.35);
-    } else {
-      sunColor = mix(sunMid, sunGoldenTip, (vHeight - 0.35) / 0.65);
-    }
-
-    // Full smooth transition to Sun Mode
-    vec3 color = mix(darkColor, sunColor, uSunMode);
 
     // Subtle per-blade variation
-    float bladeVariation = noise2D(vWorldPosition.xz * 2.5) * 0.06 - 0.03;
+    float bladeVariation = noise2D(vWorldPosition.xz * 2.5) * 0.08 - 0.04;
     color += bladeVariation;
 
     // Fresnel / rim lighting
     vec3 viewDir = normalize(cameraPosition - vWorldPosition);
     float fresnel = 1.0 - abs(dot(viewDir, vNormal));
-    fresnel = pow(fresnel, 2.5);
-    vec3 rimColor = mix(vec3(0.12, 0.15, 0.1), vec3(0.55, 0.48, 0.25), uSunMode);
-    color += fresnel * rimColor * vHeight;
+    fresnel = pow(fresnel, 3.0);
+    color += fresnel * vec3(0.12, 0.15, 0.1) * vHeight;
 
     // Subsurface scattering at blade tips
-    float sss = pow(vHeight, 2.0) * (uSunMode > 0.5 ? 0.25 : 0.15);
-    vec3 sssColor = mix(vec3(0.3, 0.35, 0.2), vec3(0.75, 0.78, 0.40), uSunMode);
-    color += sss * sssColor;
+    float sss = pow(vHeight, 2.5) * 0.16;
+    color += sss * vec3(0.3, 0.35, 0.2);
 
-    // Alpha taper at blade tip
+    // Alpha taper
     float alpha = 1.0;
     float edgeDist = abs(vUv.x - 0.5) * 2.0;
     float taperStart = mix(0.95, 0.3, vHeight);
