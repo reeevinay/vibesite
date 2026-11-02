@@ -138,54 +138,62 @@ export const terrainFragmentShader = /* glsl */ `
   }
 
   void main() {
-    // Terrain colors
-    vec3 obsidian    = vec3(0.043, 0.055, 0.043); // #0B0E0B — deep valleys
-    vec3 darkMoss    = vec3(0.118, 0.157, 0.125); // #1E2820 — mid rises
-    vec3 driedMoss   = vec3(0.227, 0.278, 0.235); // #3A473C — peaks
+    // Nocturnal / Dawn palette: deep obsidian and weathered moss
+    vec3 obsidian    = vec3(0.043, 0.055, 0.043); // #0B0E0B
+    vec3 darkMoss    = vec3(0.118, 0.157, 0.125); // #1E2820
+    vec3 driedMoss   = vec3(0.227, 0.278, 0.235); // #3A473C
 
-    // Normalize height for blending (noise range is roughly -2.5 to 2.5)
     float normalizedHeight = smoothstep(-2.0, 2.5, vHeight);
 
-    // Blend between terrain colors based on height
-    vec3 color;
+    vec3 darkTerrain;
     if (normalizedHeight < 0.4) {
-      color = mix(obsidian, darkMoss, normalizedHeight / 0.4);
+      darkTerrain = mix(obsidian, darkMoss, normalizedHeight / 0.4);
     } else {
-      color = mix(darkMoss, driedMoss, (normalizedHeight - 0.4) / 0.6);
+      darkTerrain = mix(darkMoss, driedMoss, (normalizedHeight - 0.4) / 0.6);
     }
 
-    // Warm natural sunlit earth enhancement in Sun Mode
-    vec3 sunTerrain = mix(vec3(0.28, 0.36, 0.26), vec3(0.52, 0.50, 0.38), normalizedHeight);
-    color = mix(color, sunTerrain, uSunMode * 0.65);
+    // --- Luminous Sun Mode Palette: Sunlit Pastoral Meadow ---
+    vec3 sunLow  = vec3(0.72, 0.74, 0.66); // Warm sunlit clover earth
+    vec3 sunMid  = vec3(0.80, 0.82, 0.72); // Golden sun-dappled terrace
+    vec3 sunHigh = vec3(0.89, 0.89, 0.82); // Warm sunlit limestone crest
+    vec3 sunTerrain;
+    if (normalizedHeight < 0.4) {
+      sunTerrain = mix(sunLow, sunMid, normalizedHeight / 0.4);
+    } else {
+      sunTerrain = mix(sunMid, sunHigh, (normalizedHeight - 0.4) / 0.6);
+    }
 
-    // Noise-based texture variation for organic look
+    // Blend between dark terrain and luminous sunlit terrain
+    vec3 color = mix(darkTerrain, sunTerrain, uSunMode);
+
+    // Organic micro-textures
     float texNoise = fbm(vWorldPosition.xz * 1.5);
-    color += (texNoise - 0.5) * 0.04;
+    color += (texNoise - 0.5) * (uSunMode > 0.5 ? 0.025 : 0.04);
 
-    // Additional micro-detail noise
     float detailNoise = noise2D(vWorldPosition.xz * 8.0);
-    color += (detailNoise - 0.5) * 0.015;
+    color += (detailNoise - 0.5) * (uSunMode > 0.5 ? 0.01 : 0.015);
 
-    // Subtle directional lighting based on displaced normal
+    // Directional lighting
     vec3 lightDir = normalize(vec3(0.3, 1.0, 0.2));
     float diffuse = max(dot(vNormal, lightDir), 0.0);
-    float ambient = mix(0.4, 0.55, uSunMode);
+    float ambient = mix(0.4, 0.82, uSunMode); // High ambient in Sun Mode for bright open daylight
     float lighting = ambient + (1.0 - ambient) * diffuse;
     color *= lighting;
 
-    // Slope-based darkening (steeper slopes are darker / mossy)
-    float slope = 1.0 - vNormal.y; // 0 = flat, 1 = vertical
-    color = mix(color, obsidian * 1.2, slope * 0.3);
+    // Slope darkening (in Sun Mode, use gentle warm shadow rather than pitch black obsidian)
+    float slope = 1.0 - vNormal.y;
+    vec3 slopeDarkenColor = mix(obsidian * 1.2, vec3(0.66, 0.66, 0.58), uSunMode);
+    color = mix(color, slopeDarkenColor, slope * (uSunMode > 0.5 ? 0.15 : 0.3));
 
-    // --- Distance fog (blends smoothly to warm cream #FBF9F1 in Sun Mode) ---
+    // Distance fog: blends seamlessly into warm cream #FBF9F1 sky
     float distFromCamera = length(vWorldPosition - cameraPosition);
-    float fogStart = 30.0;
-    float fogEnd = 80.0;
+    float fogStart = 28.0;
+    float fogEnd = 70.0;
     float fogFactor = smoothstep(fogStart, fogEnd, distFromCamera);
     vec3 darkFog = vec3(0.035, 0.045, 0.04);
     vec3 warmCreamFog = vec3(0.984, 0.976, 0.945); // #FBF9F1
     vec3 fogColor = mix(darkFog, warmCreamFog, uSunMode);
-    color = mix(color, fogColor, fogFactor * 0.65);
+    color = mix(color, fogColor, fogFactor * (uSunMode > 0.5 ? 0.85 : 0.6));
 
     gl_FragColor = vec4(color, 1.0);
   }

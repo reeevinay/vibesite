@@ -16,7 +16,8 @@ export const waterFragmentShader = /* glsl */ `
   precision highp float;
 
   uniform float uTime;
-  uniform vec3 uRippleOrigins[5]; // xy = world position, z = birth time
+  uniform float uSunMode;
+  uniform vec3 uRippleOrigins[5];
   uniform int uRippleCount;
 
   varying vec2 vUv;
@@ -40,7 +41,6 @@ export const waterFragmentShader = /* glsl */ `
     return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
   }
 
-  // Fractional Brownian Motion for caustics
   float fbm(vec2 p) {
     float value = 0.0;
     float amplitude = 0.5;
@@ -53,10 +53,21 @@ export const waterFragmentShader = /* glsl */ `
   }
 
   void main() {
-    // Base color: dark reflective surface with subtle blue-green tint
-    vec3 baseDeep = vec3(0.043, 0.055, 0.043);    // #0B0E0B
-    vec3 baseTint = vec3(0.05, 0.08, 0.07);
-    vec3 color = mix(baseDeep, baseTint, 0.5);
+    // Distance from center of pond (radius is 4.0)
+    float distFromCenter = length(vWorldPosition.xz);
+
+    // --- Dark Nocturnal Theme Colors ---
+    vec3 nightDeep = vec3(0.043, 0.055, 0.043);
+    vec3 nightTint = vec3(0.05, 0.08, 0.07);
+    vec3 nightColor = mix(nightDeep, nightTint, 0.5);
+
+    // --- Sun Mode Radiant Water Colors (Luminous Sky Pool) ---
+    vec3 sunDeep   = vec3(0.66, 0.76, 0.82); // Soft cerulean sky reflection
+    vec3 sunEdge   = vec3(0.82, 0.86, 0.84); // Glistening shallow edge
+    vec3 sunColor  = mix(sunDeep, sunEdge, smoothstep(1.5, 4.0, distFromCenter));
+
+    // Base color blend
+    vec3 color = mix(nightColor, sunColor, uSunMode);
 
     // --- Animated caustics / water movement ---
     vec2 causticUV = vWorldPosition.xz * 0.3;
@@ -64,11 +75,15 @@ export const waterFragmentShader = /* glsl */ `
     float caustic2 = fbm(causticUV * 1.3 + vec2(-uTime * 0.05, uTime * 0.02) + 5.0);
     float causticPattern = caustic1 * caustic2;
     causticPattern = smoothstep(0.05, 0.25, causticPattern);
-    color += causticPattern * vec3(0.03, 0.05, 0.04) * 0.8;
+
+    vec3 nightCaustic = vec3(0.03, 0.05, 0.04) * 0.8;
+    vec3 sunCaustic = vec3(0.96, 0.94, 0.84) * 0.45; // Warm sun caustics
+    color += causticPattern * mix(nightCaustic, sunCaustic, uSunMode);
 
     // Subtle surface undulation highlights
     float surfaceNoise = noise2D(vWorldPosition.xz * 0.5 + vec2(uTime * 0.06));
-    color += surfaceNoise * vec3(0.01, 0.015, 0.012) * 0.5;
+    vec3 undulationColor = mix(vec3(0.01, 0.015, 0.012), vec3(0.08, 0.09, 0.07), uSunMode);
+    color += surfaceNoise * undulationColor * 0.5;
 
     // --- Ripples ---
     float rippleIntensity = 0.0;
@@ -81,82 +96,51 @@ export const waterFragmentShader = /* glsl */ `
       float birthTime = ripple.z;
       float age = uTime - birthTime;
 
-      // Ripple lives for 3 seconds
       if (age < 0.0 || age > 3.0) continue;
 
       float dist = length(vWorldPosition.xz - ripplePos);
-
-      // Expanding ring: speed and radius grow with time
-      float ringRadius = age * 3.0; // expands outward
-      float ringWidth = 0.6 + age * 0.3; // ring gets wider as it ages
-
+      float ringRadius = age * 3.0;
+      float ringWidth = 0.6 + age * 0.3;
       float ringDist = abs(dist - ringRadius);
 
-      // Soft ring shape using sin for smooth edges
       float ring = 0.0;
       if (ringDist < ringWidth) {
         ring = sin((1.0 - ringDist / ringWidth) * 3.14159) * 0.5 + 0.5;
       }
 
-      // Fade over lifetime (3 seconds)
       float lifeFade = 1.0 - age / 3.0;
-      lifeFade = lifeFade * lifeFade; // quadratic fade
-
-      // Diminish with distance from origin
+      lifeFade = lifeFade * lifeFade;
       float distFade = 1.0 / (1.0 + dist * 0.3);
 
       rippleIntensity += ring * lifeFade * distFade;
     }
 
-    // Apply ripples as bright concentric highlights
     rippleIntensity = clamp(rippleIntensity, 0.0, 1.0);
-    vec3 rippleColor = vec3(0.15, 0.2, 0.18);
-    color += rippleIntensity * rippleColor;
-
-    // Secondary inner ripple ring for realism
-    for (int i = 0; i < 5; i++) {
-      if (i >= uRippleCount) break;
-
-      vec3 ripple = uRippleOrigins[i];
-      float age = uTime - ripple.z;
-      if (age < 0.0 || age > 2.5) continue;
-
-      float dist = length(vWorldPosition.xz - ripple.xy);
-      float innerRadius = age * 2.0;
-      float innerWidth = 0.3 + age * 0.15;
-      float innerDist = abs(dist - innerRadius);
-
-      float innerRing = 0.0;
-      if (innerDist < innerWidth) {
-        innerRing = sin((1.0 - innerDist / innerWidth) * 3.14159);
-      }
-
-      float fade = (1.0 - age / 2.5);
-      fade *= fade;
-
-      color += innerRing * fade * vec3(0.06, 0.09, 0.08) / (1.0 + dist * 0.4);
-    }
+    vec3 nightRippleColor = vec3(0.15, 0.2, 0.18);
+    vec3 sunRippleColor = vec3(0.98, 0.94, 0.80);
+    vec3 rippleColor = mix(nightRippleColor, sunRippleColor, uSunMode);
+    color += rippleIntensity * rippleColor * (uSunMode > 0.5 ? 0.6 : 1.0);
 
     // --- Fresnel reflection ---
-    // Approximate view direction from camera
     vec3 viewDir = normalize(cameraPosition - vWorldPosition);
-    vec3 surfaceNormal = vec3(0.0, 1.0, 0.0); // flat water surface
+    vec3 surfaceNormal = vec3(0.0, 1.0, 0.0);
 
-    // Perturb normal slightly with noise for micro-waves
     float normalNoise1 = noise2D(vWorldPosition.xz * 1.5 + uTime * 0.1) * 2.0 - 1.0;
     float normalNoise2 = noise2D(vWorldPosition.xz * 1.5 + uTime * 0.1 + 100.0) * 2.0 - 1.0;
     surfaceNormal = normalize(surfaceNormal + vec3(normalNoise1, 0.0, normalNoise2) * 0.06);
 
     float fresnel = 1.0 - max(dot(viewDir, surfaceNormal), 0.0);
-    fresnel = pow(fresnel, 4.0);
+    fresnel = pow(fresnel, 3.5);
 
-    // Parchment-tinted reflection at grazing angles
-    vec3 reflectionColor = vec3(0.949, 0.937, 0.914); // #F2EFE9
-    color = mix(color, reflectionColor * 0.2, fresnel * 0.5);
+    vec3 nightReflection = vec3(0.949, 0.937, 0.914) * 0.2;
+    vec3 sunReflection = vec3(0.984, 0.976, 0.945) * 0.6; // #FBF9F1 warm sky sheen
+    vec3 reflectionColor = mix(nightReflection, sunReflection, uSunMode);
+    color = mix(color, reflectionColor, fresnel * 0.6);
 
-    // Slight overall edge glow
-    color += fresnel * vec3(0.04, 0.05, 0.045) * 0.3;
+    // Soft organic edge alpha to blend seamlessly into the terrain bank
+    float edgeAlpha = 1.0 - smoothstep(3.4, 4.0, distFromCenter);
+    float finalAlpha = mix(0.92, 0.85, uSunMode) * edgeAlpha;
 
-    gl_FragColor = vec4(color, 0.92);
+    gl_FragColor = vec4(color, finalAlpha);
   }
 `;

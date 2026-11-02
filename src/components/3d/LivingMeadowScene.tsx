@@ -273,13 +273,14 @@ function Terrain({
 // ---------------------------------------------------------------------------
 
 interface WaterPlaneProps {
+  season?: 'Dawn' | 'Sun' | 'Night'
   onWaterClick?: () => void
   onSpawnParticles?: (origin: THREE.Vector3) => void
 }
 
 const MAX_RIPPLES = 5
 
-function WaterPlane({ onWaterClick, onSpawnParticles }: WaterPlaneProps) {
+function WaterPlane({ season = 'Dawn', onWaterClick, onSpawnParticles }: WaterPlaneProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
   const geoRef = useRef<THREE.CircleGeometry>(null)
@@ -290,6 +291,7 @@ function WaterPlane({ onWaterClick, onSpawnParticles }: WaterPlaneProps) {
     const times = new Float32Array(MAX_RIPPLES).fill(-100)
     return {
       uTime: { value: 0 },
+      uSunMode: { value: season === 'Sun' ? 1.0 : 0.0 },
       uRippleOrigins: { value: origins },
       uRippleTimes: { value: times },
       uRippleCount: { value: MAX_RIPPLES },
@@ -327,9 +329,16 @@ function WaterPlane({ onWaterClick, onSpawnParticles }: WaterPlaneProps) {
     [onWaterClick, onSpawnParticles]
   )
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = clock.getElapsedTime()
+      const targetSun = season === 'Sun' ? 1.0 : 0.0
+      const sunLerp = 1.0 - Math.exp(-5 * delta)
+      matRef.current.uniforms.uSunMode.value = THREE.MathUtils.lerp(
+        matRef.current.uniforms.uSunMode.value,
+        targetSun,
+        sunLerp
+      )
     }
   })
 
@@ -1072,7 +1081,7 @@ export default function LivingMeadowScene({
       <CameraRig currentChapter={currentChapter} />
       <Terrain season={season} isMobile={isMobile} />
       <GrassField season={season} />
-      <WaterPlane onWaterClick={onWaterClick} onSpawnParticles={handleSpawnParticles} />
+      <WaterPlane season={season} onWaterClick={onWaterClick} onSpawnParticles={handleSpawnParticles} />
       <SporeParticles spawnQueue={spawnQueue} />
       <VolumetricLight currentChapter={currentChapter} season={season} />
       <MistPlanes />

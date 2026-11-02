@@ -209,8 +209,15 @@ export default function HomePage() {
         className="relative z-10 pointer-events-none transition-colors duration-500"
       >
         {/* Intro Billboard on Chapter I */}
-        <div className="min-h-[55vh] sm:min-h-[60vh] pt-32 sm:pt-40 px-4 sm:px-8 md:px-16 max-w-[1400px] mx-auto pointer-events-auto">
-          <div className="max-w-[780px] space-y-6">
+        <div className="min-h-[75vh] pt-28 sm:pt-36 pb-24 px-4 sm:px-8 md:px-16 max-w-[1400px] mx-auto pointer-events-auto flex flex-col justify-center">
+          <div
+            className={`max-w-[760px] p-6 sm:p-10 backdrop-blur-md border transition-all duration-500 space-y-6 ${
+              isSunMode
+                ? 'bg-[#FDFBF7]/90 border-[rgba(26,26,26,0.1)] text-[#1A1A1A] shadow-[0_20px_50px_rgba(26,26,26,0.06),0_2px_8px_rgba(26,26,26,0.03)]'
+                : 'bg-[#0B0E0B]/80 border-[rgba(242,239,233,0.12)] text-[#F2EFE9] shadow-2xl'
+            }`}
+          >
+            {/* Studio Badge */}
             <div className="flex flex-wrap items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-[#5E7161] animate-pulse" />
               <span
@@ -232,8 +239,9 @@ export default function HomePage() {
               </span>
             </div>
 
+            {/* Headline */}
             <h1
-              className={`text-[clamp(2.8rem,7vw,5.4rem)] leading-[0.98] tracking-[-0.035em] font-medium transition-colors duration-500 ${
+              className={`text-[clamp(2.4rem,5.5vw,4.4rem)] leading-[1.02] tracking-[-0.03em] font-medium ${
                 isSunMode ? 'text-[#1A1A1A]' : 'text-[#F2EFE9]'
               }`}
               style={{ fontFamily: 'var(--font-serif)' }}
@@ -249,70 +257,53 @@ export default function HomePage() {
               .
             </h1>
 
+            {/* Paragraph */}
             <p
-              className={`text-[16px] sm:text-[19px] font-sans leading-[1.7] max-w-[620px] transition-colors duration-500 ${
-                isSunMode ? 'text-[#1A1A1A] font-normal' : 'text-[#A3A89E] font-normal'
+              className={`text-[15px] sm:text-[18px] font-sans leading-[1.75] max-w-[640px] ${
+                isSunMode ? 'text-[#3A3D3A] font-normal' : 'text-[#A3A89E] font-normal'
               }`}
             >
               No generic templates. No bloated SaaS cards. Just high-craft editorial design, living 3D GLSL physics, and obsessive human attention to every conversion touchpoint.
             </p>
 
-            {/* Instant Onboarding Fast-Track (Easiest Way to Start) */}
+            {/* Fast-Track Direct Actions */}
             <div
-              className={`p-4 sm:p-5 backdrop-blur-md max-w-[640px] border transition-colors duration-500 ${
-                isSunMode
-                  ? 'bg-[#FDFBF7]/95 border-[rgba(26,26,26,0.12)] text-[#1A1A1A] shadow-[0_12px_36px_rgba(26,26,26,0.06),0_2px_8px_rgba(26,26,26,0.03)]'
-                  : 'bg-[#0B0E0B]/85 border-[#C87D55]/50 text-[#F2EFE9] shadow-2xl'
+              className={`pt-5 border-t flex flex-wrap items-center gap-3 ${
+                isSunMode ? 'border-[rgba(26,26,26,0.08)]' : 'border-[rgba(242,239,233,0.1)]'
               }`}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span
-                  className={`font-sans text-[11px] uppercase tracking-[0.2em] font-bold ${
-                    isSunMode ? 'text-[#D49A3D]' : 'text-[#C87D55]'
-                  }`}
-                >
-                  Easiest Onboarding — Direct Line: 80771 71541
-                </span>
-              </div>
-              <p
-                className={`text-[13px] sm:text-[14px] font-sans mb-3 leading-snug ${
-                  isSunMode ? 'text-[#1A1A1A] font-medium' : 'text-[#F2EFE9]'
+              <a
+                href="tel:8077171541"
+                className="px-5 py-3 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] transition-all text-[13px] font-sans font-bold flex items-center gap-2 shadow-sm"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Call Founder: 80771 71541</span>
+              </a>
+
+              <a
+                href="https://wa.me/918077171541?text=Hi%20vibesite%2C%20I%20would%20like%20to%20discuss%20a%20website%20project."
+                target="_blank"
+                rel="noreferrer"
+                className={`px-4 py-3 border transition-all text-[13px] font-sans font-semibold flex items-center gap-2 ${
+                  isSunMode
+                    ? 'bg-white/80 border-[rgba(26,26,26,0.18)] text-[#1A1A1A] hover:bg-[#FBF9F1]'
+                    : 'bg-white/5 border-[rgba(242,239,233,0.18)] text-[#F2EFE9] hover:bg-white/10'
                 }`}
               >
-                Want to discuss your project immediately? Call founder directly or tap to chat on WhatsApp:
-              </p>
-              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                <a
-                  href="tel:8077171541"
-                  className="px-4 py-2.5 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] transition-all text-[13px] font-sans font-bold flex items-center gap-2 shadow-sm"
-                >
-                  <span>📞 Call 80771 71541</span>
-                </a>
-                <a
-                  href="https://wa.me/918077171541?text=Hi%20vibesite%2C%20I%20would%20like%20to%20discuss%20a%20website%20project."
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`px-4 py-2.5 border transition-all text-[13px] font-sans font-semibold flex items-center gap-2 ${
-                    isSunMode
-                      ? 'bg-white border-[#5E7161]/60 text-[#1A1A1A] hover:bg-[#FBF9F1]'
-                      : 'bg-[#141E15] text-[#F2EFE9] border-[#5E7161] hover:bg-[#1B2B1D]'
-                  }`}
-                >
-                  <span>💬 WhatsApp Us</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={() => handleChapterChange(0)}
-                  className={`px-3.5 py-2 text-[12px] font-sans uppercase tracking-[0.12em] font-semibold border transition-all ml-auto sm:ml-0 ${
-                    isSunMode
-                      ? 'border-[rgba(26,26,26,0.2)] text-[#1A1A1A] hover:bg-black/5'
-                      : 'border-[rgba(242,239,233,0.18)] text-[#F2EFE9] hover:bg-white/5'
-                  }`}
-                >
-                  <span>View Services ↓</span>
-                </button>
-              </div>
+                <span>💬 WhatsApp Us</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => handleChapterChange(0)}
+                className={`px-4 py-3 text-[12px] font-sans uppercase tracking-[0.14em] font-semibold border transition-all ml-auto sm:ml-0 ${
+                  isSunMode
+                    ? 'border-[rgba(26,26,26,0.18)] text-[#1A1A1A] hover:bg-black/5'
+                    : 'border-[rgba(242,239,233,0.18)] text-[#F2EFE9] hover:bg-white/5'
+                }`}
+              >
+                <span>Explore Services ↓</span>
+              </button>
             </div>
           </div>
         </div>
