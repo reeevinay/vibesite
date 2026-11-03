@@ -72,6 +72,8 @@ export default function ProjectDrawer({ isOpen, onClose }: ProjectDrawerProps) {
   const [clientName, setClientName] = useState('')
   const [clientEmail, setClientEmail] = useState('')
   const [projectNote, setProjectNote] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const formId = useId()
 
   const currentOption = projectOptions.find((p) => p.key === selectedProject)!
@@ -120,7 +122,37 @@ export default function ProjectDrawer({ isOpen, onClose }: ProjectDrawerProps) {
     setTimeout(() => setCopied(false), 2400)
   }
 
+  const sendLeadToBackend = async () => {
+    try {
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: clientName || 'Anonymous',
+          contact: clientEmail || 'Not specified',
+          category: `[${currentOption.numeral}] ${currentOption.title}`,
+          timeline: currentOption.timeline,
+          investment: `${currencySymbol}${oneTimeTotal.toLocaleString()}${addHosting ? ` (+${currencySymbol}${monthlyTotal.toLocaleString()}/mo)` : ''}`,
+          addons: `${addWhatsapp ? 'WhatsApp Automation, ' : ''}${addHosting ? 'Year-Round Care' : 'None'}`,
+          notes: projectNote || 'None',
+        }),
+      })
+    } catch (err) {
+      console.error('Failed to record lead:', err)
+    }
+  }
+
+  const handleSubmitBrief = async () => {
+    setIsSubmitting(true)
+    await sendLeadToBackend()
+    setIsSubmitting(false)
+    setIsSubmitted(true)
+  }
+
   const handleWhatsAppBrief = () => {
+    // Also log to Google Sheets in background
+    sendLeadToBackend()
+
     const brief = `Hi vibesite! I'd like to get started with a website project:
 
 *Category:* [${currentOption.numeral}] ${currentOption.title}
@@ -451,49 +483,89 @@ Can we connect for a quick 5-minute call?`
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-2.5">
-              {/* WhatsApp Instant Dispatch */}
-              <button
-                type="button"
-                onClick={handleWhatsAppBrief}
-                className="w-full py-4 px-6 bg-[#0B0E0B] text-[#F2EFE9] hover:bg-[#1E2820] transition-colors duration-200 flex items-center justify-center gap-2.5 focus:outline-none shadow-md"
-              >
-                <span
-                  className="text-[17px] font-medium tracking-[-0.01em]"
+            {/* Action Buttons or Submitted State */}
+            {isSubmitted ? (
+              <div className="p-5 sm:p-6 bg-[#0E150F] border border-[#5E7161]/60 text-[#F2EFE9] space-y-3.5 animate-in fade-in zoom-in-95 duration-200 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.2em] font-bold text-[#8FA392]">
+                    Brief Received &amp; Logged
+                  </span>
+                </div>
+                <h3
+                  className="text-[20px] sm:text-[23px] font-medium leading-snug"
                   style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
                 >
-                  Send Brief to WhatsApp Directly (80771 71541) ↗
-                </span>
-              </button>
+                  Thank you, {clientName || 'Partner'}!
+                </h3>
+                <p className="text-[13px] font-sans text-[#A3A89E] leading-relaxed">
+                  Your project specification has been logged directly into our studio pipeline. We will review your goals and reach out within 2–4 hours.
+                </p>
+                <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppBrief}
+                    className="flex-1 py-3 px-4 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] font-sans font-bold text-[13px] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>💬 Chat on WhatsApp Now</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsSubmitted(false)}
+                    className="py-3 px-4 border border-[rgba(242,239,233,0.2)] text-[#A3A89E] hover:text-[#F2EFE9] font-sans text-[12px] transition-colors"
+                  >
+                    Edit Brief
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2.5">
+                {/* Submit to Studio / Google Sheets */}
+                <button
+                  type="button"
+                  onClick={handleSubmitBrief}
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 bg-[#0B0E0B] text-[#F2EFE9] hover:bg-[#1E2820] transition-colors duration-200 flex items-center justify-center gap-2.5 focus:outline-none shadow-md disabled:opacity-60 cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <span className="text-[14px] font-sans font-medium text-[#A3A89E]">Logging Brief to Studio...</span>
+                  ) : (
+                    <span
+                      className="text-[17px] font-medium tracking-[-0.01em]"
+                      style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
+                    >
+                      Submit Project Brief ↗
+                    </span>
+                  )}
+                </button>
 
-              {/* Direct Phone Call Button */}
-              <a
-                href="tel:8077171541"
-                className="w-full py-3.5 px-6 border border-[#C87D55] text-[#0B0E0B] bg-[rgba(200,125,85,0.08)] hover:bg-[#C87D55] hover:text-[#F2EFE9] transition-colors duration-200 flex items-center justify-center gap-2 text-[14px] font-sans font-bold"
-              >
-                <span>📞 Call 80771 71541 Directly Now</span>
-              </a>
+                {/* WhatsApp Instant Dispatch */}
+                <button
+                  type="button"
+                  onClick={handleWhatsAppBrief}
+                  className="w-full py-3.5 px-6 border border-[#5E7161] bg-[#141E15] text-[#F2EFE9] hover:bg-[#1B2B1D] hover:border-[#8FA392] transition-colors duration-200 flex items-center justify-center gap-2 text-[13px] font-sans font-semibold shadow-sm cursor-pointer"
+                >
+                  <span>💬 Or Send via WhatsApp (80771 71541) ↗</span>
+                </button>
 
-              {/* Copy Brief Text */}
-              <button
-                type="button"
-                onClick={handleCopyBrief}
-                className="w-full py-2.5 text-[12px] font-sans text-[#3A473C] hover:text-[#0B0E0B] underline transition-colors"
-              >
-                {copied ? '✓ Brief Text Copied to Clipboard' : 'Or copy text summary to clipboard'}
-              </button>
-
-              <div className="flex items-center justify-between text-[12px] font-sans text-[#3A473C] pt-2 border-t border-[rgba(11,14,11,0.08)]">
-                <span>Studio Direct Line:</span>
+                {/* Direct Phone Call Button */}
                 <a
                   href="tel:8077171541"
-                  className="text-[#0B0E0B] font-bold hover:text-[#C87D55] underline transition-colors"
+                  className="w-full py-3 px-6 border border-[rgba(11,14,11,0.18)] text-[#0B0E0B] bg-transparent hover:bg-[rgba(200,125,85,0.08)] hover:border-[#C87D55] transition-colors duration-200 flex items-center justify-center gap-2 text-[13px] font-sans font-medium"
                 >
-                  +91 80771 71541
+                  <span>📞 Direct Phone: +91 80771 71541</span>
                 </a>
+
+                {/* Copy Brief Text */}
+                <button
+                  type="button"
+                  onClick={handleCopyBrief}
+                  className="w-full py-2 text-[12px] font-sans text-[#3A473C] hover:text-[#0B0E0B] underline transition-colors"
+                >
+                  {copied ? '✓ Brief Text Copied to Clipboard' : 'Or copy text summary to clipboard'}
+                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </aside>
