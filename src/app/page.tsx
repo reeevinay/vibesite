@@ -10,6 +10,7 @@ import CustomCursor from '@/components/ui/CustomCursor'
 import ChapterShowcases from '@/components/ui/ChapterShowcases'
 import Optimized2DBackground from '@/components/ui/Optimized2DBackground'
 import BearEasterEgg from '@/components/ui/BearEasterEgg'
+import LiveProjectsShowcase from '@/components/ui/LiveProjectsShowcase'
 
 const LivingMeadowScene = dynamic(
   () => import('@/components/3d/LivingMeadowScene'),
@@ -395,6 +396,11 @@ export default function HomePage() {
             </div>
           </section>
         ))}
+
+        {/* Live Client Works Showcase (Interactive Browser Mockup Gallery) */}
+        <div className="pointer-events-auto">
+          <LiveProjectsShowcase onOpenDrawer={() => setDrawerOpen(true)} />
+        </div>
 
         {/* Studio Colophon & Footer - Spacious on Mobile & Desktop */}
         <footer className="relative z-20 py-20 sm:py-28 border-t border-[rgba(242,239,233,0.14)] bg-[#0B0E0B] text-[#F2EFE9] pointer-events-auto">
