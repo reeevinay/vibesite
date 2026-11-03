@@ -51,16 +51,16 @@ export default function BearEasterEgg() {
 
   return (
     <div className="relative inline-flex items-center">
-      {/* Refined Architectural Trigger: "panda and polar bear forever" */}
+      {/* Discreet Architectural Trigger: 1px Hairline Dual Bear Silhouette */}
       <button
         type="button"
         onClick={() => {
           setIsOpen((prev) => !prev)
           playChime()
         }}
-        className="group relative inline-flex items-center gap-2 py-1 px-2.5 sm:px-3 rounded-full border border-[rgba(242,239,233,0.14)] bg-[#111712]/80 hover:border-[#C87D55]/60 hover:bg-[#161F17] transition-all duration-300 text-[#F2EFE9] focus:outline-none shadow-sm cursor-pointer"
-        title="panda and polar bear forever"
-        aria-label="panda and polar bear forever"
+        className="group relative inline-flex items-center justify-center p-1.5 rounded-full border border-[rgba(242,239,233,0.14)] bg-[#111712]/80 hover:border-[#C87D55]/60 hover:bg-[#161F17] transition-all duration-300 text-[#F2EFE9] focus:outline-none shadow-sm cursor-pointer"
+        title="Quiet Meadow Companions"
+        aria-label="Meadow Companions"
       >
         {/* Custom 1px Hairline Polar Bear & Panda Silhouette Icon */}
         <svg
@@ -94,10 +94,6 @@ export default function BearEasterEgg() {
           {/* Shared glowing heart / starlight spark */}
           <circle cx="14.5" cy="6" r="1" fill="#C87D55" stroke="none" className="animate-pulse" />
         </svg>
-
-        <span className="text-[11px] sm:text-[12px] font-sans font-medium tracking-wide text-[#A3A89E] group-hover:text-[#F2EFE9] transition-colors">
-          panda and polar bear forever <span className="text-[#C87D55] font-serif font-bold">∞</span>
-        </span>
       </button>
 
       {/* Floating Gentle Easter Egg Modal Card */}
@@ -267,11 +263,11 @@ export default function BearEasterEgg() {
                 className="text-[20px] sm:text-[22px] font-normal tracking-tight text-[#F2EFE9]"
                 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}
               >
-                panda and polar bear forever
+                Two Companions
               </h3>
 
               <p className="text-[12px] sm:text-[13px] font-sans text-[#A3A89E] leading-relaxed">
-                Two companions sitting peacefully by the quiet water, watching the meadow sway through every dusk and dawn. Side by side, always.
+                Sitting peacefully by the quiet water, watching the meadow sway through every dusk and dawn. Side by side, always.
               </p>
 
               <div className="pt-2 flex items-center justify-center gap-2 text-[10px] font-mono tracking-widest uppercase text-[#5E7161]">

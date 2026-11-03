@@ -50,9 +50,6 @@ export default function Optimized2DBackground({ season }: Optimized2DBackgroundP
               <line x1="82" y1="26" x2="94" y2="32" stroke="#B8D5FF" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.6" />
               <line x1="94" y1="32" x2="88" y2="48" stroke="#B8D5FF" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.6" />
             </svg>
-            <span className="text-[9px] font-sans tracking-[0.18em] uppercase text-[#B8D5FF]/70 block mt-1 text-right">
-              panda &amp; polar bear forever ✦
-            </span>
           </div>
         </>
       )}
@@ -86,9 +83,6 @@ export default function Optimized2DBackground({ season }: Optimized2DBackgroundP
               <line x1="82" y1="26" x2="94" y2="32" stroke="#F2EFE9" strokeWidth="0.6" strokeDasharray="3 3" opacity="0.4" />
               <line x1="94" y1="32" x2="88" y2="48" stroke="#F2EFE9" strokeWidth="0.6" strokeDasharray="3 3" opacity="0.4" />
             </svg>
-            <span className="text-[9px] font-sans tracking-[0.18em] uppercase text-[#F2EFE9]/40 block mt-1 text-right">
-              panda &amp; polar bear forever ✦
-            </span>
           </div>
         </>
       )}
