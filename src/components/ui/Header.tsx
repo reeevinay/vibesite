@@ -61,9 +61,11 @@ export default function Header({
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-16 flex items-center justify-between">
         {/* Studio Wordmark: vibesite studio */}
         <div className="flex items-center gap-3">
-          <a
-            href="#"
-            className="group flex items-baseline gap-1.5 sm:gap-2 transition-opacity duration-300 hover:opacity-85"
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="group flex items-baseline gap-1.5 sm:gap-2 transition-opacity duration-300 hover:opacity-85 focus:outline-none cursor-pointer text-left"
+            aria-label="vibesite studio — Return to top"
           >
             <span
               className="text-[22px] sm:text-[27px] tracking-[-0.03em] font-semibold text-[#F2EFE9]"
@@ -74,7 +76,7 @@ export default function Header({
             <span className="text-[10px] sm:text-[11px] tracking-[0.22em] uppercase font-sans text-[#C87D55] font-bold">
               studio
             </span>
-          </a>
+          </button>
         </div>
 
         {/* Controls and CTA */}

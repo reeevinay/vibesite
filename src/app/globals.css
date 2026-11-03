@@ -21,9 +21,10 @@
   --color-moss: #3A473C;
 }
 
-/* ── Cursor: Custom magnetic cursor only on fine pointers (desktop) ── */
+/* ── Cursor: Custom magnetic cursor only when active on fine pointers ── */
 @media (pointer: fine) {
-  * {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
     cursor: none !important;
   }
 }

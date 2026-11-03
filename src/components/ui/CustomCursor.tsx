@@ -7,22 +7,25 @@ export default function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const [isTouch, setIsTouch] = useState(false)
+  const [isEnabled, setIsEnabled] = useState(false)
 
   const mousePos = useRef({ x: -100, y: -100 })
   const ringPos = useRef({ x: -100, y: -100 })
   const animFrameId = useRef<number | null>(null)
 
   useEffect(() => {
-    // Detect touch-only devices
-    if (window.matchMedia('(pointer: coarse)').matches) {
-      setIsTouch(true)
+    // Only activate on devices with a fine pointer (mouse/trackpad)
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches
+    if (!hasFinePointer) {
       return
     }
 
+    setIsEnabled(true)
+    document.documentElement.classList.add('has-custom-cursor')
+
     const handleMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY }
-      if (!isVisible) setIsVisible(true)
+      setIsVisible(true)
 
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`
@@ -63,15 +66,16 @@ export default function CustomCursor() {
     animFrameId.current = requestAnimationFrame(render)
 
     return () => {
+      document.documentElement.classList.remove('has-custom-cursor')
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseover', handleMouseOver)
       document.removeEventListener('mouseleave', handleMouseLeave)
       document.removeEventListener('mouseenter', handleMouseEnter)
       if (animFrameId.current) cancelAnimationFrame(animFrameId.current)
     }
-  }, [isVisible])
+  }, []) // Stable empty array: registers listeners once
 
-  if (isTouch || !isVisible) return null
+  if (!isEnabled || !isVisible) return null
 
   return (
     <div
