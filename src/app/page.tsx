@@ -93,7 +93,7 @@ const chapters: ChapterData[] = [
     liveCaseStudy: {
       name: 'Blush and Bangs',
       url: 'https://bnb-6spd.vercel.app/',
-      desc: 'Custom commission-free hospitality reservation engine & guest portal.',
+      desc: 'Bespoke bridal portfolio, appointment scheduler & client booking platform for luxury makeup and hairstyle studio.',
     },
   },
 ]
@@ -448,7 +448,7 @@ export default function HomePage() {
                 </p>
                 <p>
                   <a href="https://bnb-6spd.vercel.app/" target="_blank" rel="noreferrer" className="hover:text-[#C87D55] transition-colors underline">
-                    Blush and Bangs (Hospitality Portal) ↗
+                    Blush and Bangs (Makeup &amp; Hairstyle Studio) ↗
                   </a>
                 </p>
                 <p>
