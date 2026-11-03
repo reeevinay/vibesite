@@ -171,7 +171,7 @@ export default function Header({
           <a
             href="tel:8077171541"
             className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] transition-all text-[11px] sm:text-[13px] font-sans font-bold shadow-sm whitespace-nowrap"
-            title="Call founder directly at 80771 71541"
+            title="Direct line: 80771 71541"
           >
             <svg
               width="12"

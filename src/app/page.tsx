@@ -235,21 +235,24 @@ export default function HomePage() {
             {/* Fast-Track Actions */}
             <div className="pt-5 border-t border-[rgba(242,239,233,0.1)] flex flex-wrap items-center gap-3 sm:gap-4">
               <a
-                href="tel:8077171541"
-                className="w-full sm:w-auto justify-center px-5 py-3 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] transition-all text-[13px] font-sans font-bold flex items-center gap-2 shadow-sm"
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Call Founder: 80771 71541</span>
-              </a>
-
-              <a
                 href="https://wa.me/918077171541?text=Hi%20vibesite%2C%20I%20would%20like%20to%20discuss%20a%20website%20project."
                 target="_blank"
                 rel="noreferrer"
+                className="w-full sm:w-auto justify-center px-5 py-3 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] transition-all text-[13px] font-sans font-bold flex items-center gap-2 shadow-sm"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                <span>WhatsApp Us</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(true)}
                 className="w-full sm:w-auto justify-center px-4 py-3 border border-[rgba(242,239,233,0.18)] bg-white/5 text-[#F2EFE9] hover:bg-white/10 transition-all text-[13px] font-sans font-semibold flex items-center gap-2"
               >
-                <span>💬 WhatsApp Us</span>
-              </a>
+                <span>Scope &amp; Pricing ↗</span>
+              </button>
 
               <button
                 type="button"

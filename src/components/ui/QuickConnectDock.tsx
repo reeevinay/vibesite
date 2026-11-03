@@ -37,7 +37,7 @@ export default function QuickConnectDock({ onOpenDrawer }: QuickConnectDockProps
         >
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-[11px] sm:text-[12px] font-sans font-bold tracking-[0.12em] uppercase">
-            Call Founder
+            Quick Connect
           </span>
           <span className="text-[#C87D55] text-[12px] font-mono group-hover:translate-x-0.5 transition-transform">
             ↗
@@ -50,7 +50,7 @@ export default function QuickConnectDock({ onOpenDrawer }: QuickConnectDockProps
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[10px] uppercase font-sans tracking-[0.18em] text-[#C87D55] font-bold">
-                Direct Founder Line
+                Direct Studio Connect
               </span>
             </div>
 
@@ -68,52 +68,27 @@ export default function QuickConnectDock({ onOpenDrawer }: QuickConnectDockProps
 
           {/* Quick Explanation */}
           <p className="text-[12px] font-sans text-[#A3A89E] mb-3 leading-relaxed">
-            Zero bureaucracy. Talk directly with the studio founders:
+            Zero bureaucracy. Talk directly with our studio founders:
           </p>
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-2">
-            {/* Direct Phone Call Button */}
-            <a
-              href={`tel:${phoneNumber}`}
-              className="group flex items-center justify-between px-3.5 py-2.5 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] transition-all duration-200 shadow-sm"
-            >
-              <div className="flex items-center gap-2.5">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                >
-                  <path d="M2.5 3C2.5 2.44772 2.94772 2 3.5 2H5.67157C6.06939 2 6.42676 2.23594 6.57863 2.60041L7.52554 4.87299C7.68936 5.26615 7.56847 5.72365 7.22728 5.98188L5.94975 6.94862C6.91138 9.07005 8.62995 10.7886 10.7514 11.7503L11.7181 10.4727C11.9764 10.1315 12.4338 10.0106 12.827 10.1745L15.0996 11.1214C15.4641 11.2732 15.7 11.6306 15.7 12.0284V14.2C15.7 14.7523 15.2523 15.2 14.7 15.2C7.96223 15.2 2.5 9.73777 2.5 3Z" />
-                </svg>
-                <span className="font-sans font-bold text-[13px] tracking-[0.04em]">
-                  Call {formattedPhone}
-                </span>
-              </div>
-              <span className="text-[11px] font-mono opacity-80 uppercase tracking-wider group-hover:translate-x-0.5 transition-transform">
-                Call ↗
-              </span>
-            </a>
-
             {/* Direct WhatsApp Chat Button */}
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="group flex items-center justify-between px-3.5 py-2.5 bg-[#141E15] border border-[#5E7161] text-[#F2EFE9] hover:bg-[#1B2B1D] hover:border-[#8FA392] transition-all duration-200 shadow-sm"
+              className="group flex items-center justify-between px-3.5 py-2.5 bg-[#C87D55] text-[#F2EFE9] hover:bg-[#b5653b] transition-all duration-200 shadow-sm"
             >
               <div className="flex items-center gap-2.5">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                 </svg>
-                <span className="font-sans font-medium text-[13px]">
+                <span className="font-sans font-bold text-[13px]">
                   WhatsApp Direct Chat
                 </span>
               </div>
-              <span className="text-[10px] uppercase font-mono tracking-wider text-[#A3A89E] group-hover:translate-x-0.5 transition-transform">
+              <span className="text-[11px] font-mono opacity-90 uppercase tracking-wider group-hover:translate-x-0.5 transition-transform">
                 1-tap ↗
               </span>
             </a>
