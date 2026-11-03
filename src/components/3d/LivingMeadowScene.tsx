@@ -715,6 +715,8 @@ function MistPlanes() {
 function CelestialNightSky({ active }: { active: boolean }) {
   const starsRef = useRef<THREE.Points>(null)
   const firefliesRef = useRef<THREE.Points>(null)
+  const constStarsRef = useRef<THREE.Points>(null)
+  const constLinesRef = useRef<THREE.LineSegments>(null)
 
   const { starPositions } = useMemo(() => {
     const count = 350
@@ -746,6 +748,55 @@ function CelestialNightSky({ active }: { active: boolean }) {
     return { fireflyPositions: pos }
   }, [])
 
+  // Panda and Polar Bear Constellation Stars & Lines in the Sky
+  const { constStarPositions, constLinePositions } = useMemo(() => {
+    const starCoords = [
+      // Polar Bear (Left): Ear, Head, Neck, Shoulder, Base, Paw
+      [-3.6, 8.4, -16.0],
+      [-2.6, 8.0, -16.0],
+      [-2.8, 7.2, -16.0],
+      [-3.8, 6.6, -16.0],
+      [-4.8, 5.8, -16.0],
+      [-2.0, 6.2, -16.0],
+
+      // Central Bond Star
+      [-1.0, 6.3, -16.0],
+
+      // Panda Bear (Right): Paw, Base, Shoulder, Head, Ear
+      [-0.0, 6.2, -16.0],
+      [ 1.8, 5.8, -16.0],
+      [ 0.8, 6.6, -16.0],
+      [ 0.6, 8.0, -16.0],
+      [ 1.6, 8.4, -16.0],
+    ]
+
+    const linePairs = [
+      [0, 1], [1, 2], [2, 3], [3, 4], [3, 5], [5, 6],
+      [11, 10], [10, 9], [9, 8], [9, 7], [7, 6],
+    ]
+
+    const sPos = new Float32Array(starCoords.length * 3)
+    starCoords.forEach(([x, y, z], i) => {
+      sPos[i * 3 + 0] = x
+      sPos[i * 3 + 1] = y
+      sPos[i * 3 + 2] = z
+    })
+
+    const lPos = new Float32Array(linePairs.length * 2 * 3)
+    linePairs.forEach(([a, b], i) => {
+      const pA = starCoords[a]
+      const pB = starCoords[b]
+      lPos[i * 6 + 0] = pA[0]
+      lPos[i * 6 + 1] = pA[1]
+      lPos[i * 6 + 2] = pA[2]
+      lPos[i * 6 + 3] = pB[0]
+      lPos[i * 6 + 4] = pB[1]
+      lPos[i * 6 + 5] = pB[2]
+    })
+
+    return { constStarPositions: sPos, constLinePositions: lPos }
+  }, [])
+
   useEffect(() => {
     if (starsRef.current?.geometry) {
       starsRef.current.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 45)
@@ -753,11 +804,21 @@ function CelestialNightSky({ active }: { active: boolean }) {
     if (firefliesRef.current?.geometry) {
       firefliesRef.current.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 30)
     }
+    if (constStarsRef.current?.geometry) {
+      constStarsRef.current.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 30)
+    }
+    if (constLinesRef.current?.geometry) {
+      constLinesRef.current.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 30)
+    }
     return () => {
       starsRef.current?.geometry.dispose()
       ;(starsRef.current?.material as THREE.Material)?.dispose()
       firefliesRef.current?.geometry.dispose()
       ;(firefliesRef.current?.material as THREE.Material)?.dispose()
+      constStarsRef.current?.geometry.dispose()
+      ;(constStarsRef.current?.material as THREE.Material)?.dispose()
+      constLinesRef.current?.geometry.dispose()
+      ;(constLinesRef.current?.material as THREE.Material)?.dispose()
     }
   }, [])
 
@@ -770,6 +831,20 @@ function CelestialNightSky({ active }: { active: boolean }) {
       const targetOp = active ? 0.85 : 0.0
       mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, opLerp)
       starsRef.current.visible = mat.opacity > 0.02
+    }
+
+    if (constStarsRef.current) {
+      const mat = constStarsRef.current.material as THREE.PointsMaterial
+      const targetOp = active ? 0.95 : 0.35
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, opLerp)
+      constStarsRef.current.visible = mat.opacity > 0.02
+    }
+
+    if (constLinesRef.current) {
+      const mat = constLinesRef.current.material as THREE.LineBasicMaterial
+      const targetOp = active ? 0.65 : 0.20
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, opLerp)
+      constLinesRef.current.visible = mat.opacity > 0.02
     }
 
     if (firefliesRef.current && firefliesRef.current.geometry) {
@@ -797,6 +872,7 @@ function CelestialNightSky({ active }: { active: boolean }) {
 
   return (
     <group>
+      {/* Background Starfield */}
       <points ref={starsRef} frustumCulled={true}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
@@ -811,6 +887,36 @@ function CelestialNightSky({ active }: { active: boolean }) {
         />
       </points>
 
+      {/* Visible Panda and Polar Bear Constellation Stars */}
+      <points ref={constStarsRef} frustumCulled={true}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[constStarPositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.42}
+          color="#E6F0FF"
+          transparent
+          opacity={0}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+
+      {/* Panda and Polar Bear Constellation Lines */}
+      <lineSegments ref={constLinesRef} frustumCulled={true}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[constLinePositions, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial
+          color="#7AA2F7"
+          transparent
+          opacity={0}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </lineSegments>
+
+      {/* Ambient Fireflies */}
       <points ref={firefliesRef} frustumCulled={true}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[fireflyPositions, 3]} />

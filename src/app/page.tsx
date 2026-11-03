@@ -499,13 +499,13 @@ export default function HomePage() {
             </div>
 
             {/* Bottom Copyright & Easter Egg */}
-            <div className="pt-8 border-t border-[rgba(242,239,233,0.08)] flex flex-col sm:flex-row items-center justify-between text-[12px] font-sans text-[#A3A89E]/70 gap-4">
-              <div className="flex items-center gap-2">
+            <div className="pt-8 border-t border-[rgba(242,239,233,0.08)] flex flex-col md:flex-row items-center justify-between text-[12px] font-sans text-[#A3A89E]/70 gap-4">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-3">
                 <span>© 2026 vibesite studio. All rights reserved.</span>
                 <span className="text-[10px] text-[#A3A89E]/30 hidden xs:inline">•</span>
                 <BearEasterEgg />
               </div>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+              <div className="flex flex-wrap items-center justify-center md:justify-end gap-4 sm:gap-6 text-center md:text-right">
                 <span>Direct Founder Line: +91 80771 71541</span>
                 <span>{is3DEnabled ? 'GLSL Instanced Meadow (3D)' : 'Eco 2D Background'}</span>
                 <span>Web Audio Ambient Engine</span>
